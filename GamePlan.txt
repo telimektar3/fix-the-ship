@@ -1,0 +1,18 @@
+Requirements:
+1. Must include at least two classes
+    a. Focus on planning two classes
+    b. Creating a basis constructor __init__() method
+
+Game idea: Text adventure
+    1. Spaceship - 5 rooms
+    2. Broken engine and has to be fixed
+    3. Helper droid - can repair items?
+
+Necessary classes:
+    1. Player
+    2. Room
+    3. Droid
+    4. Items
+
+    Probably need a "create_player" function that the player inputs all of the initial information selectable by the player
+    and then calculates max hp and max move points
