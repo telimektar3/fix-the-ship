@@ -24,7 +24,7 @@ class Player:
         self.head_eq = helmet
         self.chest_eq = suit
         self.feet_eq = boots
-        self.hands_eq = gloves
+        self.hands_eq = gloves #currently using this to hold items, [0] is right hand, [1] is left hand
         self.legs_eq = legs
         # Relationship system attributes
         self.droid_relationship = droid_relate
@@ -46,25 +46,63 @@ class Player:
 
     # Run this with "inv" input
     def inventory(self):
-        parsed_inventory = "".join(str(item) for item in self.inventory)
-        return "You see the following items in your inventory:" + parsed_inventory
+        parsed_inventory = ""
+        if self.inv != []:
+            for item in self.inv:
+                parsed_inventory += " " + item + ","
+        else:
+            parsed_inventory = "There is nothing in your inventory"
+        if parsed_inventory != "There is nothing in your inventory":
+            parsed_inventory = "You see the following items in your inventory:" + parsed_inventory
+        parsed_inventory = parsed_inventory.strip(",") + "."
+        return parsed_inventory
 
     # Run this with "skills" input
-    # Run this with "equip" input
+    def skills(self):
+        return "Your skills are: repair: {repair}, first aid: {first_aid}, search: {search}.".format(repair = self.repair_skill, first_aid = self.medical_skill, search = self.search_skill)
+
+    # Run this with "equip" input; it should without argument list equipped items, and with argument attempt to equip an item
+    def equip(self, item):
+        equipped_items = []
+        equipped_items_string = ""
+        if item == "":
+            equipped_items.append("You have the following items equipped:")
+        if self.head_eq == []:
+            equipped_items.append("\n         Head:  Nothing")
+        else:
+            equipped_items.append("\n         Head:  {head}".format(head = self.head_eq[0]))
+        if self.chest_eq == []:
+            equipped_items.append("        Chest:  Nothing")
+        else:
+            equipped_items.append("        Chest:  {chest}".format(chest = self.chest_eq[0]))
+        if self.hands_eq == []:
+            equipped_items.append("        Hands:  Nothing")
+        elif self.hands_eq[0] != [] and self.hands_eq[1] != "":
+            equipped_items.append("   Right hand:  {right_hand}\n    Left hand:  {left_hand}".format(right_hand = self.hands_eq[0], left_hand = self.hands_eq[1]))
+        elif self.hands_eq[0] != [] and self.hands_eq[1] == "":
+            equipped_items.append("   Right hand:  {right_hand}\n    Left hand:  Nothing".format(right_hand = self.hands_eq[0]))
+        if self.feet_eq == []:
+            equipped_items.append("         Feet:  Nothing")
+        else:
+            equipped_items.append("         Feet:  {feet}".format(feet = self.feet_eq[0]))
+        for item in equipped_items:
+            equipped_items_string += item + "\n"
+        return equipped_items_string
     # Run this with "repair" input
     # Run this with "first aid" input
     # Run this with "search" input
     # Run this with "rest" input
     # Need player function that puts items into inventory
     # Need player function that removes items from inventory
-    # Need player function that places equipment on head, chest, hands, feet
+    # Need player function that places equipment on head, chest, hands, feet;  anything equipped to self.hands must take two arguments every time, even if one is ""
     # Need player function for "help" that lists commands: maybe help(blank,[command from list inside function])
 
-player = Player("Tim", "male", 72, 220, "", 100, 50, 50, 50, 50, "", 0, [],[],[],[],[],[], 0, 0, 0, 0, 0)
+player = Player("Tim", "male", 72, 220, "", 100, 50, 50, 50, 50, "", 0, ["old banana", "apple"],["Viking helm"],[],[],[],[], 0, 0, 0, 0, 0)
 player.movepoints_string = "well rested"
 print(player)
-# player.inventory() this throws an error, obviously not ready for prime time
-
+print(player.inventory())
+print(player.skills())
+print(player.equip(""))
 
 # Room Class here
 class Room:
@@ -117,3 +155,4 @@ class Item:
         # Inventory system attributes
         self.inventory = inventory
         
+# Game Code
