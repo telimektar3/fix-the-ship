@@ -3,12 +3,13 @@
 
 # Player Class here
 class Player:
-    def __init__(self, name, sex, height, weight, oxygen, hp, max_hp, mp, max_mp, mp_string, xp, inventory, helmet, suit, boots, gloves, legs, droid_relate, self_esteem, repair_skill, first_aid, search_skill):
+    def __init__(self, name, sex, height, weight, location, oxygen, hp, max_hp, mp, max_mp, mp_string, xp, inventory, helmet, suit, boots, gloves, legs, droid_relate, self_esteem, repair_skill, first_aid, search_skill):
         # Biographical attributes
         self.name = name
         self.sex = sex
         self.height = height # in inches
         self.weight = weight # in pounds
+        self.location = location
         # Health system attributes
         self.oxygen = oxygen
         self.healthpoints = hp
@@ -59,7 +60,7 @@ class Player:
     # Need player function that places equipment on head, chest, hands, feet
     # Need player function for "help" that lists commands: maybe help(blank,[command from list inside function])
 
-player = Player("Tim", "male", 72, 220, 100, 50, 50, 50, 50, "", 0, [],[],[],[],[],[], 0, 0, 0, 0, 0)
+player = Player("Tim", "male", 72, 220, "", 100, 50, 50, 50, 50, "", 0, [],[],[],[],[],[], 0, 0, 0, 0, 0)
 player.movepoints_string = "well rested"
 print(player)
 # player.inventory() this throws an error, obviously not ready for prime time
