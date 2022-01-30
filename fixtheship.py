@@ -62,77 +62,47 @@ class Player:
         equipped_items_string = "" 
         if item == "": # this will show what is equipped if there is no item arg
             equipped_items_desc.append("You have the following items equipped:")
-            if self.eq == [["head", ""], ["chest", ""], ["weapon", ""], ["tool", ""]]:
-                equipped_items_desc.append("\n         Head:  Nothing")
+            if self.eq[0][1] == "":
+                equipped_items_desc.append("\n         Head:  nothing")
             else:
                 equipped_items_desc.append("\n         Head:  {head}".format(head = self.eq[0][1]))
             if self.eq[1][1] == "":
-                equipped_items_desc.append("        Chest:  Nothing")
+                equipped_items_desc.append("        Chest:  nothing")
             else:
                 equipped_items_desc.append("        Chest:  {chest}".format(chest = self.eq[1][1]))
             if self.eq[2] == ["weapon", ""] and self.eq[3] == ["tool", ""]:
-                equipped_items_desc.append("        Hands:  Nothing")
+                equipped_items_desc.append("        Hands:  nothing")
             elif self.eq[2][1] != "" and self.eq[3][1] != "":
                 equipped_items_desc.append("   Right hand:  {right_hand}\n    Left hand:  {left_hand}".format(right_hand = self.eq[2][1], left_hand = self.eq[3][1]))
-            elif self.eq[2][1] != "" and self.eq[2][2] == "":
-                equipped_items_desc.append("   Right hand:  {right_hand}\n    Left hand:  Nothing".format(right_hand = self.eq[2][1]))
-            elif self.eq[2][1] == "" and self.eq[2][2] != "":
-                equipped_items_desc.append("   Right hand:  Nothing\n    Left hand:  {left_hand}".format(left_hand = self.eq[3][1]))
+            elif self.eq[2][1] != "" and self.eq[3][1] == "":
+                equipped_items_desc.append("   Right hand:  {right_hand}\n    Left hand:  nothing".format(right_hand = self.eq[2][1]))
+            elif self.eq[2][1] == "" and self.eq[3][1] != "":
+                equipped_items_desc.append("   Right hand:  nothing\n    Left hand:  {left_hand}".format(left_hand = self.eq[3][1]))
             for item in equipped_items_desc:
                 equipped_items_string += item + "\n"
             return equipped_items_string
-        if item != "":
+        if item != "": # this will check to see if the item specified can be equipped, and if it can places it in the correct slot in self.eq
             retrieved_id = getattr(item, "id")
             new_self_eq = []
             response = ""
-            for list in self.eq:
-                if list[0] == retrieved_id and list[1] == "":
-                    new_self_eq.append([list[0], item.name])
-                    response = "You equip {item}.".format(item = item.name)
-                elif list[1] == item:
-                    new_self_eq.append([list[0], list[1]])
-                    response = "You already have that equipped!"
-                elif list[0] == retrieved_id and list[1] != "":
-                    new_self_eq.append([list[0], list[1]])
-                    response = "You have already equipped {item} there. Try removing it first.".format(item = list[1])
-                else:
-                    new_self_eq.append([list[0], list[1]])
-            self.eq = new_self_eq
+            id_list = next(zip(*self.eq))
+            if retrieved_id not in id_list:
+                response = "You can't equip that!"
+            else:
+                for list in self.eq:
+                    if list[0] == retrieved_id and list[1] == "":
+                        new_self_eq.append([list[0], item.name])
+                        response = "You equip {item}.".format(item = item.name)
+                    elif list[1] == item:
+                        new_self_eq.append([list[0], list[1]])
+                        response = "You already have that equipped!"
+                    elif list[0] == retrieved_id and list[1] != "":
+                        new_self_eq.append([list[0], list[1]])
+                        response = "You have already equipped {item} there. Try removing it first.".format(item = list[1])
+                    else:
+                        new_self_eq.append([list[0], list[1]])
+                self.eq = new_self_eq
             return response
-
-
-
-                       
-
-
-
-
-
-            # Check for head equipment
-            # retrieved_id = getattr(item, "id")
-            # if retrieved_id == "head" and self.head_eq == ["","","",""]:
-            #     self.head_eq = []
-            #     self.head_eq.append(item.name)
-            #     self.head_eq.append(item.weight)
-            #     self.head_eq.append(item.condition)
-            #     self.head_eq.append(item)
-            #     return "You put {helmet} on your head.".format(helmet = item.name)
-            # if item == self.head_eq[3]:
-            #     return "You are already wearing that, silly."
-            # elif retrieved_id == "head" and self.head_eq != ["","","",""]:
-            #     return "You are already wearing " + self.head_eq[0] + "! Try removing it first"
-            # # Check for chest equipment
-            # if retrieved_id == "chest" and self.chest_eq == ["","","",""]:
-            #     self.chest_eq = []
-            #     self.chest_eq.append(item.name)
-            #     self.chest_eq.append(item.weight)
-            #     self.chest_eq.append(item.condition)
-            #     self.chest_eq.append(item)
-            #     return "You wriggle into {space_suit}.".format(space_suit = item.name)
-            # elif item == self.chest_eq[3]:
-            #     return "You are already wearing that, silly."
-            # elif retrieved_id == "chest" and self.chest_eq != ["","","",""]:
-            #     return "You are already wearing " + self.chest_eq[0] + "! Try removing it first"
 
 
     # Run this with "repair" input
@@ -231,8 +201,9 @@ viking_helm_1 = Item("a viking helm", "head", 10, 1, 100)
 viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 100)
 viking_hammer_1 = Item("a viking hammer", "weapon", 14, 20, 100)
 viking_caliper_1 = Item("a viking caliper", "tool", 12, 5, 100)
+banana_1 = Item("a green banana", "food", 5, 0.5, 100)
 
 
-
-
+print(player.equip(viking_hammer_1))
+print(player.equip(viking_armor_1))
 print(player.equip())
