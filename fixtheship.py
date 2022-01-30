@@ -23,7 +23,7 @@ class Player:
         
         # Inventory system attributes
         self.inv = []
-        self.eq = [["head", ""], ["chest", ""], ["hands", "", ""]]
+        self.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
         # self.head_eq = ["","","",""]
         # self.chest_eq = ["","","",""]
         # self.hands_eq = ["", ""] #currently using this to hold items, [0] is right hand, [1] is left hand
@@ -62,7 +62,7 @@ class Player:
         equipped_items_string = "" 
         if item == "": # this will show what is equipped if there is no item arg
             equipped_items_desc.append("You have the following items equipped:")
-            if self.eq == [["head", ""], ["chest", ""], ["hands", "", ""]]:
+            if self.eq == [["head", ""], ["chest", ""], ["weapon", ""], ["tool", ""]]:
                 equipped_items_desc.append("\n         Head:  Nothing")
             else:
                 equipped_items_desc.append("\n         Head:  {head}".format(head = self.eq[0][1]))
@@ -70,26 +70,38 @@ class Player:
                 equipped_items_desc.append("        Chest:  Nothing")
             else:
                 equipped_items_desc.append("        Chest:  {chest}".format(chest = self.eq[1][1]))
-            if self.eq[2] == ["hands","",""]:
+            if self.eq[2] == ["weapon", ""] and self.eq[3] == ["tool", ""]:
                 equipped_items_desc.append("        Hands:  Nothing")
-            elif self.eq[2][1] != "" and self.eq[2][2] != "":
-                equipped_items_desc.append("   Right hand:  {right_hand}\n    Left hand:  {left_hand}".format(right_hand = self.eq[2][1], left_hand = self.eq[2][2]))
+            elif self.eq[2][1] != "" and self.eq[3][1] != "":
+                equipped_items_desc.append("   Right hand:  {right_hand}\n    Left hand:  {left_hand}".format(right_hand = self.eq[2][1], left_hand = self.eq[3][1]))
             elif self.eq[2][1] != "" and self.eq[2][2] == "":
                 equipped_items_desc.append("   Right hand:  {right_hand}\n    Left hand:  Nothing".format(right_hand = self.eq[2][1]))
             elif self.eq[2][1] == "" and self.eq[2][2] != "":
-                equipped_items_desc.append("   Right hand:  Nothing\n    Left hand:  {left_hand}".format(left_hand = self.eq[2][2]))
+                equipped_items_desc.append("   Right hand:  Nothing\n    Left hand:  {left_hand}".format(left_hand = self.eq[3][1]))
             for item in equipped_items_desc:
                 equipped_items_string += item + "\n"
             return equipped_items_string
         if item != "":
-            try:
-                retrieved_id = getattr(item, "id")
-            except NameError:
-                return "That's not something you an equip"
+            retrieved_id = getattr(item, "id")
+            new_self_eq = []
+            response = ""
             for list in self.eq:
-                for sublist in list:
-                    if sublist == retrieved_id:
-                        return retrieved_id
+                if list[0] == retrieved_id and list[1] == "":
+                    new_self_eq.append([list[0], item.name])
+                    response = "You equip {item}.".format(item = item.name)
+                elif list[1] == item:
+                    new_self_eq.append([list[0], list[1]])
+                    response = "You already have that equipped!"
+                elif list[0] == retrieved_id and list[1] != "":
+                    new_self_eq.append([list[0], list[1]])
+                    response = "You have already equipped {item} there. Try removing it first.".format(item = list[1])
+                else:
+                    new_self_eq.append([list[0], list[1]])
+            self.eq = new_self_eq
+            return response
+
+
+
                        
 
 
@@ -214,11 +226,13 @@ class Item:
 
 # Testing functions interacting classes
 player = Player("Tim", "male", 72, 220, "", 100, 100, 100, 100, 100, "well rested")
+player.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
 viking_helm_1 = Item("a viking helm", "head", 10, 1, 100)
-viking_helm_2 = Item("a viking helm", "head", 10, 1, 100)
+viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 100)
+viking_hammer_1 = Item("a viking hammer", "weapon", 14, 20, 100)
+viking_caliper_1 = Item("a viking caliper", "tool", 12, 5, 100)
 
 
 
 
-print(player.equip(viking_helm_3))
-# print(player.chest_eq)
+print(player.equip())
