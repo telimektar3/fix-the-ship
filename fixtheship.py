@@ -23,9 +23,10 @@ class Player:
         
         # Inventory system attributes
         self.inv = []
-        self.head_eq = ["","","",""]
-        self.chest_eq = ["","","",""]
-        self.hands_eq = ["", ""] #currently using this to hold items, [0] is right hand, [1] is left hand
+        self.eq = [["head", ""], ["chest", ""], ["hands", "", ""]]
+        # self.head_eq = ["","","",""]
+        # self.chest_eq = ["","","",""]
+        # self.hands_eq = ["", ""] #currently using this to hold items, [0] is right hand, [1] is left hand
         
         # Relationship system attributes
         self.droid_relationship = 0
@@ -56,33 +57,43 @@ class Player:
         return "Your skills are:\n\n                repair: {repair}\n                search: {search}\n".format(repair = self.repair_skill, search = self.search_skill)
 
     # Run this with "equip" input; it should without argument list equipped items, and with argument attempt to equip an item
-    def equip(self, item): # when equipping an item it will add the following list to the appropriate equip slot [item.name, item.weight, item.condition]
+    def equip(self, item=""): # when equipping an item it will add the following list to the appropriate equip slot [item.name, item.weight, item.condition]
         equipped_items_desc = []
         equipped_items_string = "" 
         if item == "": # this will show what is equipped if there is no item arg
             equipped_items_desc.append("You have the following items equipped:")
-            if self.head_eq == []:
+            if self.eq == [["head", ""], ["chest", ""], ["hands", "", ""]]:
                 equipped_items_desc.append("\n         Head:  Nothing")
             else:
-                equipped_items_desc.append("\n         Head:  {head}".format(head = self.head_eq[0]))
-            if self.chest_eq == []:
+                equipped_items_desc.append("\n         Head:  {head}".format(head = self.eq[0][1]))
+            if self.eq[1][1] == "":
                 equipped_items_desc.append("        Chest:  Nothing")
             else:
-                equipped_items_desc.append("        Chest:  {chest}".format(chest = self.chest_eq[0]))
-            if self.hands_eq == ["",""]:
+                equipped_items_desc.append("        Chest:  {chest}".format(chest = self.eq[1][1]))
+            if self.eq[2] == ["hands","",""]:
                 equipped_items_desc.append("        Hands:  Nothing")
-            elif self.hands_eq[0] != "" and self.hands_eq[1] != "":
-                equipped_items_desc.append("   Right hand:  {right_hand}\n    Left hand:  {left_hand}".format(right_hand = self.hands_eq[0], left_hand = self.hands_eq[1]))
-            elif self.hands_eq[0] != "" and self.hands_eq[1] == "":
-                equipped_items_desc.append("   Right hand:  {right_hand}\n    Left hand:  Nothing".format(right_hand = self.hands_eq[0]))
-            elif self.hands_eq[0] == "" and self.hands_eq[1] != "":
-                equipped_items_desc.append("   Right hand:  Nothing\n    Left hand:  {left_hand}".format(left_hand = self.hands_eq[1]))
+            elif self.eq[2][1] != "" and self.eq[2][2] != "":
+                equipped_items_desc.append("   Right hand:  {right_hand}\n    Left hand:  {left_hand}".format(right_hand = self.eq[2][1], left_hand = self.eq[2][2]))
+            elif self.eq[2][1] != "" and self.eq[2][2] == "":
+                equipped_items_desc.append("   Right hand:  {right_hand}\n    Left hand:  Nothing".format(right_hand = self.eq[2][1]))
+            elif self.eq[2][1] == "" and self.eq[2][2] != "":
+                equipped_items_desc.append("   Right hand:  Nothing\n    Left hand:  {left_hand}".format(left_hand = self.eq[2][2]))
             for item in equipped_items_desc:
                 equipped_items_string += item + "\n"
             return equipped_items_string
         if item != "":
-            retrieved_id = getattr(item, "id")
-            
+            try:
+                retrieved_id = getattr(item, "id")
+            except NameError:
+                return "That's not something you an equip"
+            for list in self.eq:
+                for sublist in list:
+                    if sublist == retrieved_id:
+                        return retrieved_id
+                       
+
+
+
 
 
             # Check for head equipment
@@ -94,22 +105,22 @@ class Player:
             #     self.head_eq.append(item.condition)
             #     self.head_eq.append(item)
             #     return "You put {helmet} on your head.".format(helmet = item.name)
-            if item == self.head_eq[3]:
-                return "You are already wearing that, silly."
-            elif retrieved_id == "head" and self.head_eq != ["","","",""]:
-                return "You are already wearing " + self.head_eq[0] + "! Try removing it first"
-            # Check for chest equipment
-            if retrieved_id == "chest" and self.chest_eq == ["","","",""]:
-                self.chest_eq = []
-                self.chest_eq.append(item.name)
-                self.chest_eq.append(item.weight)
-                self.chest_eq.append(item.condition)
-                self.chest_eq.append(item)
-                return "You wriggle into {space_suit}.".format(space_suit = item.name)
-            elif item == self.chest_eq[3]:
-                return "You are already wearing that, silly."
-            elif retrieved_id == "chest" and self.chest_eq != ["","","",""]:
-                return "You are already wearing " + self.chest_eq[0] + "! Try removing it first"
+            # if item == self.head_eq[3]:
+            #     return "You are already wearing that, silly."
+            # elif retrieved_id == "head" and self.head_eq != ["","","",""]:
+            #     return "You are already wearing " + self.head_eq[0] + "! Try removing it first"
+            # # Check for chest equipment
+            # if retrieved_id == "chest" and self.chest_eq == ["","","",""]:
+            #     self.chest_eq = []
+            #     self.chest_eq.append(item.name)
+            #     self.chest_eq.append(item.weight)
+            #     self.chest_eq.append(item.condition)
+            #     self.chest_eq.append(item)
+            #     return "You wriggle into {space_suit}.".format(space_suit = item.name)
+            # elif item == self.chest_eq[3]:
+            #     return "You are already wearing that, silly."
+            # elif retrieved_id == "chest" and self.chest_eq != ["","","",""]:
+            #     return "You are already wearing " + self.chest_eq[0] + "! Try removing it first"
 
 
     # Run this with "repair" input
@@ -204,10 +215,10 @@ class Item:
 # Testing functions interacting classes
 player = Player("Tim", "male", 72, 220, "", 100, 100, 100, 100, 100, "well rested")
 viking_helm_1 = Item("a viking helm", "head", 10, 1, 100)
-viking_helm_2 = Item("a viking helm", "chest", 10, 1, 100)
+viking_helm_2 = Item("a viking helm", "head", 10, 1, 100)
 
 
 
 
-print(player.equip(viking_helm_1))
+print(player.equip(viking_helm_3))
 # print(player.chest_eq)
