@@ -1,6 +1,6 @@
 # Fix the Ship
 # Timothy Goode (telimektar3)
-
+import random
 # Player Class here
 class Player:
     def __init__(self, name, sex, height, weight, location, oxygen, hp, max_hp, mp, max_mp, mp_string):
@@ -24,16 +24,15 @@ class Player:
         # Inventory system attributes
         self.inv = []
         self.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
-        # self.head_eq = ["","","",""]
-        # self.chest_eq = ["","","",""]
-        # self.hands_eq = ["", ""] #currently using this to hold items, [0] is right hand, [1] is left hand
         
         # Relationship system attributes
         self.droid_relationship = 0
         
         # Skill system attributes
         self.repair_skill = 0
+        self.repair_prac = 0
         self.search_skill = 0
+        self.search_prac = 0
 
     # Run this with "condition" input   
     def __repr__(self):
@@ -53,8 +52,18 @@ class Player:
         return parsed_inventory
 
     # Run this with "skills" input
-    def skills(self):
-        return "Your skills are:\n\n                repair: {repair}\n                search: {search}\n".format(repair = self.repair_skill, search = self.search_skill)
+    def skills(self, skill=""):
+        skill_list = ["repair", "search"]
+        if skill == "":
+            return "Your skills are:\n\n                repair: {repair}%\n                search: {search}%\n".format(repair = self.repair_skill, search = self.search_skill)
+        elif skill not in skill_list:
+            return "That's not a skill. Try 'repair' or 'search' instead."
+        elif skill == "repair":
+            repair_skill = "This a person's ability to 'repair' items or systems.\nYour repair skill is at {repair}% mastery at this time.".format(repair = self.repair_skill)
+            return repair_skill
+        else:
+            search_skill = "This is a person's ability to find hidden items or 'search' through computer systems for needed information.\nYour search skill is at {search}% mastery at this time.".format(search = self.search_skill)
+            return search_skill
 
     # Run this with "equip" input; it should without argument list equipped items, and with argument attempt to equip an item
     def equip(self, item=""): # when equipping an item it will add the following list to the appropriate equip slot [item.name, item.weight, item.condition]
@@ -86,12 +95,14 @@ class Player:
             new_self_eq = []
             response = ""
             id_list = next(zip(*self.eq))
-            if retrieved_id not in id_list:
+            if item.in_inventory == False:
+                response = "You don't have that!"
+            elif retrieved_id not in id_list:
                 response = "You can't equip that!"
             else:
                 for list in self.eq:
-                    if list[0] == retrieved_id and list[1] == "":
-                        new_self_eq.append([list[0], item.name])
+                    if list[0] == retrieved_id and list[1] == "": # if the open slot matches the item type, places it in the open slot
+                        new_self_eq.append([list[0], item.name]) # appending .name rather than item because there won't be more than one of an item, and (frankly) I don't want to figure out how to convert "item stored @ somewhere" into it's .name right now
                         response = "You equip {item}.".format(item = item.name)
                     elif list[1] == item:
                         new_self_eq.append([list[0], list[1]])
@@ -106,14 +117,43 @@ class Player:
 
 
     # Run this with "repair" input
+    def repair(self, item=""):
+        item_name = item.name
+        if item == "":
+            return "You should input: repair 'item name'."
+        elif item.condition >= 90:
+            return item_name.capitalize() + " is already in perfect condition."
+        else:
+            repair_item(item)
+            if item.condition <= 10:
+                return item_name.capitalize() + " is in very bad condition."
+            elif item.condition > 10 and item.condition <= 40:
+                return item_name.capitalized() + " is in bad condition."
+            elif item.condition > 40 and item.condition <= 60:
+                return item_name.capitalized() + " is in okay condition."
+            elif item.condition > 60 and item.condition <= 80:
+                return item_name.capitalized() + " is in good condition."
+            else:
+                return item_name.capitalized() + " is in very good condition."
 
+    def repair_item(self, item):
+        repair_skill = self.repair_skill
+        initial_condition = item.condition
+        repair_skill_number = (repair_skill + random.randint(0, 20)) * .70
+        repair_outcome = repair_skill_number - initial_condition
+        if repair_skill_number >= initial_condition:
+            if repair_outcome >= 
+            
+
+
+ 
     # Run this with "search" input
 
     # Run this with "rest" input
 
     # Run this with "look" input
 
-    # Need player function that puts items into inventory
+    # Run this with "get" input
 
     # Need player function that removes items from inventory
 
@@ -189,14 +229,16 @@ class Item:
         self.id = item_id # Can be "head", "chest" "hand" 
         self.length_item = length_item # in inches
         self.weight = weight # in pounds
+        self.in_inventory = False
         # Health system attributes
         self.condition = condition_item
+
         
 # Game Code
 
 # Testing functions interacting classes
 player = Player("Tim", "male", 72, 220, "", 100, 100, 100, 100, 100, "well rested")
-player.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
+# player.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
 viking_helm_1 = Item("a viking helm", "head", 10, 1, 100)
 viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 100)
 viking_hammer_1 = Item("a viking hammer", "weapon", 14, 20, 100)
@@ -204,6 +246,9 @@ viking_caliper_1 = Item("a viking caliper", "tool", 12, 5, 100)
 banana_1 = Item("a green banana", "food", 5, 0.5, 100)
 
 
-print(player.equip(viking_hammer_1))
-print(player.equip(viking_armor_1))
-print(player.equip())
+# print(player.equip(viking_hammer_1))
+# print(player.equip(viking_armor_1))
+# print(player.equip())
+# print(player.inventory())
+
+print(player.repair(viking_armor_1))
