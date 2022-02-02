@@ -114,7 +114,26 @@ class Player:
                         new_self_eq.append([list[0], list[1]])
                 self.eq = new_self_eq
             return response
-  
+
+   # Removes equipment on player.eq slots
+    def remove(self, item):
+        if item != "": # this will check to see if the item can be removed, and if it can removes it from the correct slot in self.eq
+            retrieved_id = getattr(item, "id")
+            new_self_eq = []
+            response = ""
+            if item.in_inventory == False:
+                response = "You don't have that!"
+            else:
+                for list in self.eq:
+                    if list[0] == retrieved_id and list[1] == item.name: # if a slot matches the item name, removes it from self.eq
+                        new_self_eq.append([list[0], ""]) 
+                        response = "You remove {item}.".format(item = item.name)
+                    else:
+                        new_self_eq.append([list[0], list[1]])
+                self.eq = new_self_eq
+            return response
+
+
     def repair_item(self, item):
         repair_skill = self.repair_skill
         initial_condition = item.condition
@@ -186,29 +205,14 @@ class Player:
     # Run this with "get" input
     def get(self, item):
         pass # implement; make sure that this sets item.in_inventory to True
+    # needs to also edit player.inv and add item.name to that list
 
     # Need player function that removes items from inventory
     def drop(self, item):
         pass # implement; make sure that this calls a function in Item that sets item.in_inventory to False
+    # needs to also edit player.inv and remove item.name from that list
 
-    # Need player function that removes equipment on head, body or hand(s);  anything equipped to self.hands must take two arguments every time, even if one is ""
-    def remove(self, item):
-        if item != "": # this will check to see if the item can be removed, and if it can removes it from the correct slot in self.eq
-            retrieved_id = getattr(item, "id")
-            new_self_eq = []
-            response = ""
-            if item.in_inventory == False:
-                response = "You don't have that!"
-            else:
-                for list in self.eq:
-                    if list[0] == retrieved_id and list[1] == item.name: # if a slot matches the item name, removes it from self.eq
-                        new_self_eq.append([list[0], ""]) # appending .name rather than item because there won't be more than one of an item, and (frankly) I don't want to figure out how to convert "item stored @ somewhere" into it's .name right now
-                        response = "You remove {item}.".format(item = item.name)
-                    else:
-                        new_self_eq.append([list[0], list[1]])
-                self.eq = new_self_eq
-            return response
-
+ 
     # Need player function for "help" that lists commands: maybe help(blank,[command from list inside function])
     def help(self, topic = ""):
         pass
