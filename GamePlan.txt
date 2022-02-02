@@ -16,3 +16,11 @@ Necessary classes:
 
     Probably need a "create_player" function that the player inputs all of the initial information selectable by the player
     and then calculates max hp and max move points
+
+Repair_item needs:
+    1. likelihood of repair success
+        if (player.repair_skill + random.randint(0, 20) * .70 >= item.condition 
+    2. likelihood of horrible failure - include this 
+    3. amount of increase on success
+    4. amount of decrease on horrible failure
+    5. increase skill score based on amount of practices (can do this with an attribute self.repair_prac in Player)
