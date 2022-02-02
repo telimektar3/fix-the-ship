@@ -114,53 +114,91 @@ class Player:
                         new_self_eq.append([list[0], list[1]])
                 self.eq = new_self_eq
             return response
-
+  
+    def repair_item(self, item):
+        repair_skill = self.repair_skill
+        initial_condition = item.condition
+        repair_skill_number = (repair_skill + random.randint(0, 100)) * .70
+        repair_outcome = repair_skill_number - initial_condition
+        skill_use_outcome = ""
+        skill_increase = ""
+        if repair_skill_number >= initial_condition:
+            if repair_outcome >= 10:
+                item.condition = item.condition + random.randint(10, 20)
+            elif repair_outcome >= 5:
+                item.condition = item.condition + random.randint(5, 10)
+            else:
+                item.condition = item.condition + random.randint(1, 5)
+            skill_use_outcome = "You repaired {item}.".format(item = item.name)
+        elif repair_skill_number < initial_condition:
+            if repair_outcome <= -15:
+                item.condition = item.condition - random.randint(1, 5)
+                skill_use_outcome =  "That didn't work. You might have made it worse."
+            elif repair_outcome > -15:
+                skill_use_outcome = "Your repair fails, but you don't seem to have made it worse."
+        self.repair_prac += 1
+        if self.repair_prac > (self.repair_skill + 1) * 0.5:
+            self.repair_skill += 1
+            skill_increase =  "Your skill at repairing increased!"
+        final_repair_msg = skill_use_outcome + "\n" + skill_increase
+        return final_repair_msg
 
     # Run this with "repair" input
-    def repair(self, item=""):
+    def repair(self, item = ""):
         item_name = item.name
         if item == "":
             return "You should input: repair 'item name'."
         elif item.condition >= 90:
             return item_name.capitalize() + " is already in perfect condition."
         else:
-            repair_item(item)
+            print(self.repair_item(item))
             if item.condition <= 10:
                 return item_name.capitalize() + " is in very bad condition."
             elif item.condition > 10 and item.condition <= 40:
-                return item_name.capitalized() + " is in bad condition."
+                return item_name.capitalize() + " is in bad condition."
             elif item.condition > 40 and item.condition <= 60:
-                return item_name.capitalized() + " is in okay condition."
+                return item_name.capitalize() + " is in okay condition."
             elif item.condition > 60 and item.condition <= 80:
-                return item_name.capitalized() + " is in good condition."
+                return item_name.capitalize() + " is in good condition."
             else:
-                return item_name.capitalized() + " is in very good condition."
+                return item_name.capitalize() + " is in very good condition."
 
-    def repair_item(self, item):
-        repair_skill = self.repair_skill
-        initial_condition = item.condition
-        repair_skill_number = (repair_skill + random.randint(0, 20)) * .70
-        repair_outcome = repair_skill_number - initial_condition
-        if repair_skill_number >= initial_condition:
-            if repair_outcome >= 
+ 
+                
             
 
 
  
     # Run this with "search" input
+    # "Search" should have a case that looks for parts where it finds parts necessary to repair the ship
+    # in the current room. Need to create an attribute that includes a list of the necessary repair items.
+    # this search function should only be usable if the player has talked to the droid about what parts are
+    # necessary.
 
     # Run this with "rest" input
+    def rest(self):
+        pass # make sure that you complete this
 
     # Run this with "look" input
+    def look(self, place = ""):
+        pass # remember to implement
 
     # Run this with "get" input
+    def get(self, item):
+        pass # implement
 
     # Need player function that removes items from inventory
+    def drop(self, item):
+        pass
 
     # Need player function that removes equipment on head, body or hand(s);  anything equipped to self.hands must take two arguments every time, even if one is ""
+    def remove(self, item):
+        pass
 
     # Need player function for "help" that lists commands: maybe help(blank,[command from list inside function])
-
+    def help(self, topic = ""):
+        pass
+    
     # Need player function that uses oxygen based on weight of items and body size/weight: 
         # "Air Consumption Rate All other factors being equal, a diver’s air consumption rate, also called his Surface Air Consumption Rate (SAC rate) 
         # or Respiratory Minute Volume (RMV), will determine how long the air in his tank will last compared to the average diver. A diver with large 
@@ -240,7 +278,7 @@ class Item:
 player = Player("Tim", "male", 72, 220, "", 100, 100, 100, 100, 100, "well rested")
 # player.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
 viking_helm_1 = Item("a viking helm", "head", 10, 1, 100)
-viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 100)
+viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 39)
 viking_hammer_1 = Item("a viking hammer", "weapon", 14, 20, 100)
 viking_caliper_1 = Item("a viking caliper", "tool", 12, 5, 100)
 banana_1 = Item("a green banana", "food", 5, 0.5, 100)
