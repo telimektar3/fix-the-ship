@@ -185,20 +185,34 @@ class Player:
 
     # Run this with "get" input
     def get(self, item):
-        pass # implement
+        pass # implement; make sure that this sets item.in_inventory to True
 
     # Need player function that removes items from inventory
     def drop(self, item):
-        pass
+        pass # implement; make sure that this calls a function in Item that sets item.in_inventory to False
 
     # Need player function that removes equipment on head, body or hand(s);  anything equipped to self.hands must take two arguments every time, even if one is ""
     def remove(self, item):
-        pass
+        if item != "": # this will check to see if the item can be removed, and if it can removes it from the correct slot in self.eq
+            retrieved_id = getattr(item, "id")
+            new_self_eq = []
+            response = ""
+            if item.in_inventory == False:
+                response = "You don't have that!"
+            else:
+                for list in self.eq:
+                    if list[0] == retrieved_id and list[1] == item.name: # if a slot matches the item name, removes it from self.eq
+                        new_self_eq.append([list[0], ""]) # appending .name rather than item because there won't be more than one of an item, and (frankly) I don't want to figure out how to convert "item stored @ somewhere" into it's .name right now
+                        response = "You remove {item}.".format(item = item.name)
+                    else:
+                        new_self_eq.append([list[0], list[1]])
+                self.eq = new_self_eq
+            return response
 
     # Need player function for "help" that lists commands: maybe help(blank,[command from list inside function])
     def help(self, topic = ""):
         pass
-    
+
     # Need player function that uses oxygen based on weight of items and body size/weight: 
         # "Air Consumption Rate All other factors being equal, a diver’s air consumption rate, also called his Surface Air Consumption Rate (SAC rate) 
         # or Respiratory Minute Volume (RMV), will determine how long the air in his tank will last compared to the average diver. A diver with large 
@@ -206,8 +220,12 @@ class Player:
         # air consumption rate. A variety of factors effect an individual’s air consumption rate, including stress, experience level, buoyancy control, and 
         # the amount of exercise the diver does on a dive. Relaxed, slow, and deep breathing is usually the best way for a diver to reduce his air consumption rate." 
         # - https://www.omegadivers.com/how-long-does-a-scuba-tank-last/
-        
+    def air_usage(self):
+        pass
+
     # Output hp/hpmax  mp/mpmax  oxygen%  at each prompt
+    def prompt(self):
+        pass
 
 
 # Player Class testing below
@@ -222,7 +240,7 @@ class Player:
 
 # Room Class here
 class Room:
-    def __init__(self):
+    def __init__(self, desc, ex_desc, smell, sound, oxy_level, temperature, exits, room_items):
         # Room sensorium
         self.look_desc = desc
         self.examine_desc = ex_desc
@@ -230,15 +248,18 @@ class Room:
         self.sounds = sound
         # Environmental system attributes
         self.oxygen_level = oxy_level
-        self.light = light # Bright, Normal, Low, None
+        self.light = ["none", "low", "normal", "bright"] # Bright, Normal, Low, None
         self.temperature = temperature # Celsius
         # Direction
         self.exits = exits
+        # Occupants
+        self.items = room_items
+
 
 
 # Droid Class here
 class Droid:
-    def __init__(self):
+    def __init__(self, name, height, weight, hp, mp, inventory, droid_relate):
         # Biographical attributes
         self.name = name
         self.sex = "Robot"
@@ -254,9 +275,8 @@ class Droid:
         # Relationship system attributes
         self.droid_relationship = droid_relate
         # Skill system attributes
-        self.repair_skill = repair_skill
-        self.medical_skill = first_aid
-        self.search_skill = search_skill
+        self.repair_skill = 100
+        self.medical_skill = 100
 
 
 # Item class here
@@ -276,17 +296,22 @@ class Item:
 
 # Testing functions interacting classes
 player = Player("Tim", "male", 72, 220, "", 100, 100, 100, 100, 100, "well rested")
-# player.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
+player.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
 viking_helm_1 = Item("a viking helm", "head", 10, 1, 100)
 viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 39)
 viking_hammer_1 = Item("a viking hammer", "weapon", 14, 20, 100)
 viking_caliper_1 = Item("a viking caliper", "tool", 12, 5, 100)
 banana_1 = Item("a green banana", "food", 5, 0.5, 100)
 
-
-# print(player.equip(viking_hammer_1))
+viking_armor_1.in_inventory = True
+player.inv = [viking_armor_1.name]
+print(player.equip(viking_hammer_1))
 # print(player.equip(viking_armor_1))
 # print(player.equip())
 # print(player.inventory())
-
-print(player.repair(viking_armor_1))
+print(player.equip())
+print(player.remove(viking_armor_1))
+print(player.inventory())
+print(player.equip())
+print(player.equip(viking_armor_1))
+print(player.equip())
