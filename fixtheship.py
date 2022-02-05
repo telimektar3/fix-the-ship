@@ -126,7 +126,7 @@ class Player:
             else:
                 for list in self.eq:
                     if list[0] == retrieved_id and list[1] == item.name: # if a slot matches the item name, removes it from self.eq
-                        new_self_eq.append([list[0], ""]) 
+                        new_self_eq.append([list[0], ""])
                         response = "You remove {item}.".format(item = item.name)
                     else:
                         new_self_eq.append([list[0], list[1]])
@@ -244,31 +244,59 @@ class Player:
 
 # Room Class here
 class Room:
-    def __init__(self, desc, ex_desc, smell, sound, oxy_level, temperature, exits, room_items):
+    def __init__(self, room_id, desc, ex_desc, oxy_level, exits, room_items):
         # Room sensorium
         self.look_desc = desc
         self.examine_desc = ex_desc
-        self.smell = smell
-        self.sounds = sound
         # Environmental system attributes
         self.oxygen_level = oxy_level
-        self.light = ["none", "low", "normal", "bright"] # Bright, Normal, Low, None
-        self.temperature = temperature # Celsius
+        self.room_id = room_id
         # Direction
         self.exits = exits
         # Occupants
         self.items = room_items
 
+    def __repr__(self):
+        if self.items != []:
+            look_at_me = self.look_desc + "\n" + "In the room there are the folowing: " + str(self.items) + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits
+        else:
+            look_at_me = self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits
+        return look_at_me
+
+    def check_oxygen(self):
+        if player.location == self.room_id and self.oxygen_level == 0:
+            if player.eq[1][1] == "" and player.eq[0][1] == "":
+                if player.oxygen > 50:
+                    print("You gasp... there's no oxygen in here!!!")
+                    self.drain_oxygen()
+                else:
+                    self.drain_oxygen()
+            else:
+                return
+        else:
+            return
+            
+    def drain_oxygen(self):
+        if player.oxygen == 0:
+            player.healthpoints = player.healthpoints - 5
+            print("It's hard to focus on anything, and the world is going gray.")
+        elif 30 < player.oxygen <= 50:
+            print("Your worries just seem to be slipping away...")
+            player.oxygen = player.oxygen - 10
+        else:
+            print("Who knew life could be so great?")
+            player.oxygen = player.oxygen - 10
 
 
 # Droid Class here
 class Droid:
-    def __init__(self, name, height, weight, hp, mp, inventory, droid_relate):
+    def __init__(self, name, height, weight, hp, mp, inventory, droid_relate, location):
         # Biographical attributes
         self.name = name
         self.sex = "Robot"
         self.height = height # in inches
         self.weight = weight # in pounds
+        self.location = location
         # Health system attributes
         self.healthpoints = hp
         self.movepoints = mp
@@ -285,13 +313,14 @@ class Droid:
 
 # Item class here
 class Item:
-    def __init__(self, name, item_id, length_item, weight, condition_item):
+    def __init__(self, name, item_id, length_item, weight, condition_item, location):
         # Biographical attributes
         self.name = name
         self.id = item_id # Can be "head", "chest" "hand" 
         self.length_item = length_item # in inches
         self.weight = weight # in pounds
         self.in_inventory = False
+        self.location = location
         # Health system attributes
         self.condition = condition_item
 
@@ -299,23 +328,27 @@ class Item:
 # Game Code
 
 # Testing functions interacting classes
-player = Player("Tim", "male", 72, 220, "", 100, 100, 100, 100, 100, "well rested")
-player.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
-viking_helm_1 = Item("a viking helm", "head", 10, 1, 100)
-viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 39)
-viking_hammer_1 = Item("a viking hammer", "weapon", 14, 20, 100)
-viking_caliper_1 = Item("a viking caliper", "tool", 12, 5, 100)
-banana_1 = Item("a green banana", "food", 5, 0.5, 100)
+# player = Player("Tim", "male", 72, 220, "", 100, 100, 100, 100, 100, "well rested")
+# player.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
+# viking_helm_1 = Item("a viking helm", "head", 10, 1, 100)
+# viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 39)
+# viking_hammer_1 = Item("a viking hammer", "weapon", 14, 20, 100)
+# viking_caliper_1 = Item("a viking caliper", "tool", 12, 5, 100)
+# banana_1 = Item("a green banana", "food", 5, 0.5, 100)
 
-viking_armor_1.in_inventory = True
-player.inv = [viking_armor_1.name]
-print(player.equip(viking_hammer_1))
+# viking_armor_1.in_inventory = True
+# player.inv = [viking_armor_1.name]
+# print(player.equip(viking_hammer_1))
+# # print(player.equip(viking_armor_1))
+# # print(player.equip())
+# # print(player.inventory())
+# print(player.equip())
+# print(player.remove(viking_armor_1))
+# print(player.inventory())
+# print(player.equip())
 # print(player.equip(viking_armor_1))
 # print(player.equip())
-# print(player.inventory())
-print(player.equip())
-print(player.remove(viking_armor_1))
-print(player.inventory())
-print(player.equip())
-print(player.equip(viking_armor_1))
-print(player.equip())
+
+engine_room = Room(1000, "This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "", 0, "galley, hallway", ["a microscope", "an avacado"])
+
+print(engine_room)
