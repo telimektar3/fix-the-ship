@@ -1,6 +1,13 @@
 # Fix the Ship
 # Timothy Goode (telimektar3)
 import random
+from threading import Thread
+import time
+
+# Global variables
+player_functions = {}
+prompt = ""
+thread_running = True
 # Player Class here
 class Player:
     def __init__(self, name, sex, height, weight, location, oxygen, hp, max_hp, mp, max_mp, mp_string):
@@ -43,7 +50,7 @@ class Player:
         parsed_inventory = ""
         if self.inv != []:
             for item in self.inv:
-                parsed_inventory += " " + item + ","
+                parsed_inventory += " " + item.name + ","
         else:
             parsed_inventory = "There is nothing in your inventory"
         if parsed_inventory != "There is nothing in your inventory":
@@ -164,12 +171,15 @@ class Player:
 
     # Run this with "repair" input
     def repair(self, item = ""):
-        item_name = item.name
-        if item == "":
+        if item == None:
             return "You should input: repair 'item name'."
+        elif item not in player.inv:
+            return "You don't have that in your possession."
         elif item.condition >= 90:
+            item_name = item.name
             return item_name.capitalize() + " is already in perfect condition."
         else:
+            item_name = item.name
             print(self.repair_item(item))
             if item.condition <= 10:
                 return item_name.capitalize() + " is in very bad condition."
@@ -204,7 +214,12 @@ class Player:
 
     # Run this with "get" input
     def get(self, item):
-        pass # implement; make sure that this sets item.in_inventory to True
+        if self.inv == []:
+            self.inv = [item]
+        else:
+            self.inv = self.inv.append(item)
+        return "You get " + item.name
+
     # needs to also edit player.inv and add item.name to that list
 
     # Need player function that removes items from inventory
@@ -231,6 +246,9 @@ class Player:
     def prompt(self):
         pass
 
+    # Player functions dictionary to use with Parser
+    player_functions = {"i": inventory}  # this needs to be fixed
+print(player_functions)
 
 # Player Class testing below
 
@@ -254,11 +272,16 @@ class Room:
         # Direction
         self.exits = exits
         # Occupants
-        self.items = room_items
+        self.items = room_items # use a dictionary {"item name": object}
 
     def __repr__(self):
-        if self.items != []:
-            look_at_me = self.look_desc + "\n" + "In the room there are the folowing: " + str(self.items) + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits
+        if self.items != {}:
+            items_here = list(self.items.keys())
+            for item in items_here:
+                items_here_new = ""
+                items_here_new = items_here_new + item + ", "
+            items_here_new = items_here_new.strip(", ")
+            look_at_me = self.look_desc + "\n" + "In the room there are the folowing: " + items_here_new + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits
         else:
             look_at_me = self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits
         return look_at_me
@@ -287,6 +310,12 @@ class Room:
             print("Who knew life could be so great?")
             player.oxygen = player.oxygen - 10
 
+    def get_here(self, item):
+        for key in self.items:
+            if item == key:
+                return player.get(self.items[item])
+            else:
+                return "That isn't here."
 
 # Droid Class here
 class Droid:
@@ -324,20 +353,27 @@ class Item:
         # Health system attributes
         self.condition = condition_item
 
-        
+# Parser here
+def parse(input):
+    input_list = input.split(" ", 1)
+    
+    return input_list
+
+
 # Game Code
 
 # Testing functions interacting classes
-# player = Player("Tim", "male", 72, 220, "", 100, 100, 100, 100, 100, "well rested")
+player = Player("Tim", "male", 72, 220, "", 100, 100, 100, 100, 100, "well rested")
 # player.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
 # viking_helm_1 = Item("a viking helm", "head", 10, 1, 100)
-# viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 39)
+viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 39, "")
 # viking_hammer_1 = Item("a viking hammer", "weapon", 14, 20, 100)
 # viking_caliper_1 = Item("a viking caliper", "tool", 12, 5, 100)
 # banana_1 = Item("a green banana", "food", 5, 0.5, 100)
 
 # viking_armor_1.in_inventory = True
-# player.inv = [viking_armor_1.name]
+# player.inv = [viking_armor_1]
+
 # print(player.equip(viking_hammer_1))
 # # print(player.equip(viking_armor_1))
 # # print(player.equip())
@@ -349,6 +385,48 @@ class Item:
 # print(player.equip(viking_armor_1))
 # print(player.equip())
 
-engine_room = Room(1000, "This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "", 0, "galley, hallway", ["a microscope", "an avacado"])
+engine_room = Room(1000, "This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "", 0, "galley, hallway", {viking_armor_1.name: viking_armor_1})
 
 print(engine_room)
+# print(player.get(viking_armor_1))
+# print(player.inv)
+print(engine_room.get_here("a set of viking armor"))
+print(player.inventory())
+
+# Actual Game Loop
+prompt = "hp: " + str(player.healthpoints) + "/" + str(player.maxhealthpoints) + " mp: " + str(player.movepoints) + "/" + str(player.maxmovepoints) + ": " # need creation function so that this is what it looks like.
+
+
+def my_forever_while():
+    global thread_running
+
+    # start_time = time.time()
+
+    # # run this while there is no input
+    # while thread_running:
+    #     time.sleep(0.1)
+
+    #     if time.time() - start_time >= 5:
+    #         start_time = time.time()
+    #         print('Another 5 seconds has passed')
+
+
+def take_input():
+    global thread_running
+    while thread_running:
+        what_was_typed = []
+        player_input = input(str(prompt))
+        # doing something with the input
+        what_was_typed = parse(player_input)
+        print(what_was_typed)
+
+if __name__ == '__main__':
+    t1 = Thread(target=my_forever_while)
+    t2 = Thread(target=take_input)
+
+    t1.start()
+    t2.start()
+
+    t2.join()  # interpreter will wait until your process get completed or terminated
+    # thread_running = False
+    print('Good-bye.')
