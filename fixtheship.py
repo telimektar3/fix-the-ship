@@ -5,7 +5,7 @@ from threading import Thread
 import time
 
 # Global variables
-player_functions = {}
+player_functions = {"test": "test"}
 prompt = ""
 thread_running = True
 # Player Class here
@@ -29,7 +29,7 @@ class Player:
         self.dead = False
         
         # Inventory system attributes
-        self.inv = []
+        self.inv = {} # needs to be {item.name: item}
         self.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
         
         # Relationship system attributes
@@ -45,18 +45,22 @@ class Player:
     def __repr__(self):
         return "Your health is {hp}/{max_hp} and you are {mp_string}.".format(hp = self.healthpoints, max_hp = self.maxhealthpoints, mp_string = self.movepoints_string)
 
+
+
     # Run this with "inv" input
     def inventory(self):
         parsed_inventory = ""
         if self.inv != []:
             for item in self.inv:
-                parsed_inventory += " " + item.name + ","
+                parsed_inventory += " " + item + ","
         else:
             parsed_inventory = "There is nothing in your inventory"
         if parsed_inventory != "There is nothing in your inventory":
             parsed_inventory = "You see the following items in your inventory:" + parsed_inventory
         parsed_inventory = parsed_inventory.strip(",") + "."
         return parsed_inventory
+
+
 
     # Run this with "skills" input
     def skills(self, skill=""):
@@ -71,6 +75,8 @@ class Player:
         else:
             search_skill = "This is a person's ability to find hidden items or 'search' through computer systems for needed information.\nYour search skill is at {search}% mastery at this time.".format(search = self.search_skill)
             return search_skill
+
+
 
     # Run this with "equip" input; it should without argument list equipped items, and with argument attempt to equip an item
     def equip(self, item=""): # when equipping an item it will add the following list to the appropriate equip slot [item.name, item.weight, item.condition]
@@ -122,6 +128,8 @@ class Player:
                 self.eq = new_self_eq
             return response
 
+
+
    # Removes equipment on player.eq slots
     def remove(self, item):
         if item != "": # this will check to see if the item can be removed, and if it can removes it from the correct slot in self.eq
@@ -139,6 +147,7 @@ class Player:
                         new_self_eq.append([list[0], list[1]])
                 self.eq = new_self_eq
             return response
+
 
 
     def repair_item(self, item):
@@ -193,7 +202,7 @@ class Player:
                 return item_name.capitalize() + " is in very good condition."
 
  
-                
+
             
 
 
@@ -214,10 +223,10 @@ class Player:
 
     # Run this with "get" input
     def get(self, item):
-        if self.inv == []:
-            self.inv = [item]
+        if self.inv == {}:
+            self.inv = {item.name: item}
         else:
-            self.inv = self.inv.append(item)
+            self.inv[item.name] = item
         return "You get " + item.name
 
     # needs to also edit player.inv and add item.name to that list
@@ -242,12 +251,16 @@ class Player:
     def air_usage(self):
         pass
 
-    # Output hp/hpmax  mp/mpmax  oxygen%  at each prompt
-    def prompt(self):
-        pass
 
-    # Player functions dictionary to use with Parser
-    player_functions = {"i": inventory}  # this needs to be fixed
+# Player functions dictionary to use with Parser
+
+player_functions["repair"] = Player.repair
+player_functions["remove"] = Player.remove     
+player_functions["eq"] = Player.equip
+player_functions["equip"] = Player.equip 
+player_functions["skills"] = Player.skills  
+player_functions["i"] = Player.inventory
+player_functions["inventory"] = Player.inventory 
 print(player_functions)
 
 # Player Class testing below
@@ -311,11 +324,11 @@ class Room:
             player.oxygen = player.oxygen - 10
 
     def get_here(self, item):
-        for key in self.items:
-            if item == key:
-                return player.get(self.items[item])
-            else:
-                return "That isn't here."
+        here_objects = self.items.keys()
+        if item in here_objects:
+            return player.get(print(self.items[item]))
+        else:
+            return "That isn't here."
 
 # Droid Class here
 class Droid:
@@ -356,8 +369,24 @@ class Item:
 # Parser here
 def parse(input):
     input_list = input.split(" ", 1)
-    
-    return input_list
+    print(input_list)
+    if len(input_list) > 1:
+        command_arg = input_list[1]
+    input = input_list[0]
+    function_output = ""
+    for key in player_functions.keys():
+        if input_list[0] == key:
+            function = player_functions.get(key)
+            print(function)
+            if len(input_list) > 1 and key == input:
+                function_output = function(player, command_arg)
+            elif len(input_list) == 1 and key == input:
+                function_output = function(player)
+            else:
+                function_output = "What?"
+            return function_output
+    else:
+        return "What?"
 
 
 # Game Code
@@ -417,8 +446,11 @@ def take_input():
         what_was_typed = []
         player_input = input(str(prompt))
         # doing something with the input
-        what_was_typed = parse(player_input)
-        print(what_was_typed)
+        if player_input == "score":
+            print(player)
+        else:
+            what_was_typed = parse(player_input)
+            print(what_was_typed)
 
 if __name__ == '__main__':
     t1 = Thread(target=my_forever_while)
