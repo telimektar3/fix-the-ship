@@ -10,13 +10,13 @@ prompt = ""
 thread_running = True
 # Player Class here
 class Player:
-    def __init__(self, name, sex, height, weight, location, oxygen, hp, max_hp, mp, max_mp, mp_string):
+    def __init__(self, name, sex, height, weight, oxygen, hp, max_hp, mp, max_mp, mp_string):
         # Biographical attributes
         self.name = name
         self.sex = sex
         self.height = height # in inches
         self.weight = weight # in pounds
-        self.location = location
+        self.location = []
         
         # Health system attributes
         self.oxygen = oxygen # input as [effort, available% (100 - 0)]
@@ -50,7 +50,7 @@ class Player:
     # Run this with "inv" input
     def inventory(self):
         parsed_inventory = ""
-        if self.inv != []:
+        if self.inv != {}:
             for item in self.inv:
                 parsed_inventory += " " + item + ","
         else:
@@ -104,34 +104,36 @@ class Player:
                 equipped_items_string += item + "\n"
             return equipped_items_string
         if item != "": # this will check to see if the item specified can be equipped, and if it can places it in the correct slot in self.eq
-            retrieved_id = getattr(item, "id")
-            new_self_eq = []
-            response = ""
-            id_list = next(zip(*self.eq))
-            if item.in_inventory == False:
-                response = "You don't have that!"
-            elif retrieved_id not in id_list:
-                response = "You can't equip that!"
-            else:
-                for list in self.eq:
-                    if list[0] == retrieved_id and list[1] == "": # if the open slot matches the item type, places it in the open slot
-                        new_self_eq.append([list[0], item.name]) # appending .name rather than item because there won't be more than one of an item, and (frankly) I don't want to figure out how to convert "item stored @ somewhere" into it's .name right now
-                        response = "You equip {item}.".format(item = item.name)
-                    elif list[1] == item:
-                        new_self_eq.append([list[0], list[1]])
-                        response = "You already have that equipped!"
-                    elif list[0] == retrieved_id and list[1] != "":
-                        new_self_eq.append([list[0], list[1]])
-                        response = "You have already equipped {item} there. Try removing it first.".format(item = list[1])
-                    else:
-                        new_self_eq.append([list[0], list[1]])
-                self.eq = new_self_eq
+            if item in self.inv:
+                item_to_eq = self.inv[item]
+                retrieved_id = getattr(item_to_eq, 'id')
+                new_self_eq = []
+                response = ""
+                id_list = next(zip(*self.eq))
+                if item_to_eq.in_inventory == False:
+                    response = "You don't have that!"
+                elif retrieved_id not in id_list:
+                    response = "You can't equip that!"
+                else:
+                    for list in self.eq:
+                        if list[0] == retrieved_id and list[1] == "": # if the open slot matches the item type, places it in the open slot
+                            new_self_eq.append([list[0], item]) # appending .name rather than item because there won't be more than one of an item, and (frankly) I don't want to figure out how to convert "item stored @ somewhere" into it's .name right now
+                            response = "You equip {item}.".format(item = item)
+                        elif list[1] == item:
+                            new_self_eq.append([list[0], list[1]])
+                            response = "You already have that equipped!"
+                        elif list[0] == retrieved_id and list[1] != "":
+                            new_self_eq.append([list[0], list[1]])
+                            response = "You have already equipped {item} there. Try removing it first.".format(item = list[1])
+                        else:
+                            new_self_eq.append([list[0], list[1]])
+                    self.eq = new_self_eq
             return response
 
 
 
    # Removes equipment on player.eq slots
-    def remove(self, item):
+    def remove(self, item = ""):
         if item != "": # this will check to see if the item can be removed, and if it can removes it from the correct slot in self.eq
             retrieved_id = getattr(item, "id")
             new_self_eq = []
@@ -147,6 +149,8 @@ class Player:
                         new_self_eq.append([list[0], list[1]])
                 self.eq = new_self_eq
             return response
+        else:
+            return "Remove what?"
 
 
 
@@ -222,11 +226,28 @@ class Player:
         pass # remember to implement
 
     # Run this with "get" input
-    def get(self, item):
-        if self.inv == {}:
-            self.inv = {item.name: item}
+    
+    def get_here(self, item=""):
+        current_room = self.location
+        here = current_room[0]
+        here_objects = getattr(here, 'items')
+        if item in here_objects.keys():
+            new_item = here_objects[item]
+            return player.get(new_item)
+        elif item == "":
+            return "Get what?"
         else:
+            return "That isn't here."
+    
+    def get(self, item):
+        if self.inv == {} and item != None:
+            self.inv = {item.name: item}
+            item.in_inventory = True
+            print(item.in_inventory)
+        elif item != None:
             self.inv[item.name] = item
+            item.in_inventory = True
+            print(item.in_inventory)
         return "You get " + item.name
 
     # needs to also edit player.inv and add item.name to that list
@@ -253,15 +274,8 @@ class Player:
 
 
 # Player functions dictionary to use with Parser
+# need a player functions function that initializes these
 
-player_functions["repair"] = Player.repair
-player_functions["remove"] = Player.remove     
-player_functions["eq"] = Player.equip
-player_functions["equip"] = Player.equip 
-player_functions["skills"] = Player.skills  
-player_functions["i"] = Player.inventory
-player_functions["inventory"] = Player.inventory 
-print(player_functions)
 
 # Player Class testing below
 
@@ -287,17 +301,17 @@ class Room:
         # Occupants
         self.items = room_items # use a dictionary {"item name": object}
 
-    def __repr__(self):
-        if self.items != {}:
-            items_here = list(self.items.keys())
-            for item in items_here:
-                items_here_new = ""
-                items_here_new = items_here_new + item + ", "
-            items_here_new = items_here_new.strip(", ")
-            look_at_me = self.look_desc + "\n" + "In the room there are the folowing: " + items_here_new + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits
-        else:
-            look_at_me = self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits
-        return look_at_me
+    # def __repr__(self):
+    #     if self.items != {}:
+    #         items_here = list(self.items.keys())
+    #         for item in items_here:
+    #             items_here_new = ""
+    #             items_here_new = items_here_new + item + ", "
+    #         items_here_new = items_here_new.strip(", ")
+    #         look_at_me = self.look_desc + "\n" + "In the room there are the folowing: " + items_here_new + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits
+    #     else:
+    #         look_at_me = self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits
+    #     return look_at_me
 
     def check_oxygen(self):
         if player.location == self.room_id and self.oxygen_level == 0:
@@ -323,12 +337,6 @@ class Room:
             print("Who knew life could be so great?")
             player.oxygen = player.oxygen - 10
 
-    def get_here(self, item):
-        here_objects = self.items.keys()
-        if item in here_objects:
-            return player.get(print(self.items[item]))
-        else:
-            return "That isn't here."
 
 # Droid Class here
 class Droid:
@@ -366,23 +374,35 @@ class Item:
         # Health system attributes
         self.condition = condition_item
 
+# Function Dictionary for Parser
+player_functions["repair"] = Player.repair
+player_functions["remove"] = Player.remove     
+player_functions["eq"] = Player.equip
+player_functions["equip"] = Player.equip 
+player_functions["skills"] = Player.skills  
+player_functions["i"] = Player.inventory
+player_functions["inventory"] = Player.inventory
+player_functions["get"] = Player.get_here 
+print(player_functions)
+
+
 # Parser here
 def parse(input):
     input_list = input.split(" ", 1)
     print(input_list)
-    if len(input_list) > 1:
-        command_arg = input_list[1]
     input = input_list[0]
     function_output = ""
     for key in player_functions.keys():
         if input_list[0] == key:
             function = player_functions.get(key)
             print(function)
-            if len(input_list) > 1 and key == input:
+            if len(input_list) > 1:
+                command_arg = input_list[1]
                 function_output = function(player, command_arg)
-            elif len(input_list) == 1 and key == input:
+            elif len(input_list) == 1:
                 function_output = function(player)
             else:
+                print("Else error")
                 function_output = "What?"
             return function_output
     else:
@@ -392,10 +412,12 @@ def parse(input):
 # Game Code
 
 # Testing functions interacting classes
-player = Player("Tim", "male", 72, 220, "", 100, 100, 100, 100, 100, "well rested")
+viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 39, "")
+engine_room = Room(1000, "This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "", 0, "galley, hallway", {viking_armor_1.name: viking_armor_1})
+player = Player("Tim", "male", 72, 220, 100, 100, 100, 100, 100, "well rested")
+player.location = [engine_room]
 # player.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
 # viking_helm_1 = Item("a viking helm", "head", 10, 1, 100)
-viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 39, "")
 # viking_hammer_1 = Item("a viking hammer", "weapon", 14, 20, 100)
 # viking_caliper_1 = Item("a viking caliper", "tool", 12, 5, 100)
 # banana_1 = Item("a green banana", "food", 5, 0.5, 100)
@@ -414,12 +436,11 @@ viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 39, "")
 # print(player.equip(viking_armor_1))
 # print(player.equip())
 
-engine_room = Room(1000, "This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "", 0, "galley, hallway", {viking_armor_1.name: viking_armor_1})
 
 print(engine_room)
 # print(player.get(viking_armor_1))
 # print(player.inv)
-print(engine_room.get_here("a set of viking armor"))
+# print(engine_room.get_here("a set of viking armor"))
 print(player.inventory())
 
 # Actual Game Loop
