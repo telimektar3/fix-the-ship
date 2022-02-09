@@ -5,7 +5,8 @@ from threading import Thread
 import time
 
 # Global variables
-player_functions = {"test": "test"}
+player_functions = {}
+locations = {}
 prompt = ""
 thread_running = True
 # Player Class here
@@ -41,13 +42,13 @@ class Player:
         self.search_skill = 0
         self.search_prac = 0
 
-    # Run this with "condition" input   
+    # Run this with "score" input   
     def __repr__(self):
         return "Your health is {hp}/{max_hp} and you are {mp_string}.".format(hp = self.healthpoints, max_hp = self.maxhealthpoints, mp_string = self.movepoints_string)
 
 
 
-    # Run this with "inv" input
+    # Run this with "i" or "inventory" input
     def inventory(self):
         parsed_inventory = ""
         if self.inv != {}:
@@ -66,14 +67,14 @@ class Player:
     def skills(self, skill=""):
         skill_list = ["repair", "search"]
         if skill == "":
-            return "Your skills are:\n\n                repair: {repair}%\n                search: {search}%\n".format(repair = self.repair_skill, search = self.search_skill)
+            return "\nYour skills are:\n\n                repair: {repair}%\n                search: {search}%\n".format(repair = self.repair_skill, search = self.search_skill)
         elif skill not in skill_list:
-            return "That's not a skill. Try 'repair' or 'search' instead."
+            return "\nThat's not a skill. Try 'repair' or 'search' instead.\n"
         elif skill == "repair":
-            repair_skill = "This a person's ability to 'repair' items or systems.\nYour repair skill is at {repair}% mastery at this time.".format(repair = self.repair_skill)
+            repair_skill = "\nThis is a person's ability to 'repair' items or systems.\nYour repair skill is at {repair}% mastery at this time.\n".format(repair = self.repair_skill)
             return repair_skill
         else:
-            search_skill = "This is a person's ability to find hidden items or 'search' through computer systems for needed information.\nYour search skill is at {search}% mastery at this time.".format(search = self.search_skill)
+            search_skill = "\nThis is a person's ability to find hidden items or 'search' through computer systems for needed information.\nYour search skill is at {search}% mastery at this time.\n".format(search = self.search_skill)
             return search_skill
 
 
@@ -119,6 +120,7 @@ class Player:
                         if list[0] == retrieved_id and list[1] == "": # if the open slot matches the item type, places it in the open slot
                             new_self_eq.append([list[0], item]) # appending .name rather than item because there won't be more than one of an item, and (frankly) I don't want to figure out how to convert "item stored @ somewhere" into it's .name right now
                             response = "You equip {item}.".format(item = item)
+                            item_to_eq.is_equipped = True
                         elif list[1] == item:
                             new_self_eq.append([list[0], list[1]])
                             response = "You already have that equipped!"
@@ -134,21 +136,34 @@ class Player:
 
    # Removes equipment on player.eq slots
     def remove(self, item = ""):
+        response_remove = ""
         if item != "": # this will check to see if the item can be removed, and if it can removes it from the correct slot in self.eq
-            retrieved_id = getattr(item, "id")
+            # retrieved_id = getattr(item, "id")
             new_self_eq = []
             response = ""
-            if item.in_inventory == False:
+            if item not in player.inv:
                 response = "You don't have that!"
             else:
+                item_object = player.inv[item]
                 for list in self.eq:
-                    if list[0] == retrieved_id and list[1] == item.name: # if a slot matches the item name, removes it from self.eq
-                        new_self_eq.append([list[0], ""])
-                        response = "You remove {item}.".format(item = item.name)
+                    count = 0
+                    if list[1] == item: # if a slot matches the item name, removes it from self.eq
+                        eq_id = list[0]
+                        new_self_eq.append([eq_id, ""])
+                        response_remove = "You remove {item}.".format(item = item)
+                        count += 1
+                        item_object.is_equipped = False
+                        # print(player.eq)
                     else:
                         new_self_eq.append([list[0], list[1]])
+                        response = "You don't have that equipped"
+                        # print("The remove else case")
                 self.eq = new_self_eq
-            return response
+                # print(player.eq)
+            if response_remove != "":
+                    return response_remove
+            else:
+                return response
         else:
             return "Remove what?"
 
@@ -212,6 +227,8 @@ class Player:
 
  
     # Run this with "search" input
+    def search(self, item = ""):
+        pass
     # "Search" should have a case that looks for parts where it finds parts necessary to repair the ship
     # in the current room. Need to create an attribute that includes a list of the necessary repair items.
     # this search function should only be usable if the player has talked to the droid about what parts are
@@ -223,7 +240,21 @@ class Player:
 
     # Run this with "look" input
     def look(self, place = ""):
-        pass # remember to implement
+        room_desc = player.location[0]
+        if place == "":
+            return room_desc.describe_self()
+        elif place != "":
+            items_here = room_desc.items.keys()
+            for item in items_here:
+                if place == item and room_desc.items[item].is_hidden == False:
+                     return "You see {item}".format(item = item)
+                elif room_desc[item].is_hidden == True:
+                    for item in player.inv:
+                        return "Nope"
+                else:
+                    return "You don't see that here."
+            # location_object = player.location[0]
+            # print(location_object.look_desc)
 
     # Run this with "get" input
     
@@ -233,6 +264,8 @@ class Player:
         here_objects = getattr(here, 'items')
         if item in here_objects.keys():
             new_item = here_objects[item]
+            del here.items[item]
+            # print(here.items) 
             return player.get(new_item)
         elif item == "":
             return "Get what?"
@@ -243,18 +276,40 @@ class Player:
         if self.inv == {} and item != None:
             self.inv = {item.name: item}
             item.in_inventory = True
-            print(item.in_inventory)
+            item.is_hidden = False
+            # print(item.in_inventory)
         elif item != None:
             self.inv[item.name] = item
             item.in_inventory = True
-            print(item.in_inventory)
+            # print(item.in_inventory)
         return "You get " + item.name
 
-    # needs to also edit player.inv and add item.name to that list
-
     # Need player function that removes items from inventory
-    def drop(self, item):
-        pass # implement; make sure that this calls a function in Item that sets item.in_inventory to False
+    def drop(self, item = ""):
+        # pass # implement; make sure that this calls a function in Item that sets item.in_inventory to False
+        if item == "":
+            return "Drop what?"
+        else:
+            current_room = self.location
+            here = current_room[0]
+            if item in self.inv.keys():
+                item_object = self.inv[item]
+                if item_object.is_equipped == True:
+                    Player.remove(player, item)
+                    print("You unequip " + item)
+                here.items[item] = item_object
+                # print(here.items)
+                item_object.in_inventory = False
+                del self.inv[item]
+                # print(self.inv)
+                # print(here.items)
+                # print(item_object.in_inventory)
+                return "You drop " + item + "."
+            else:
+                return "You don't have " + item + "!"
+            
+
+
     # needs to also edit player.inv and remove item.name from that list
 
  
@@ -272,6 +327,23 @@ class Player:
     def air_usage(self):
         pass
 
+    def check_move(self, input):
+        if input in locations.keys():
+            value = locations[input]
+            return Player.move(input, value)
+        else:
+            return "What?"   
+
+    def move(input, value):
+        exit = value.room_id
+        current_location = player.location[0].room_id
+        if current_location != exit:
+            new_player_location = [value]
+            print("You move to the {location}".format(location = value.examine_desc.lower()))
+            player.location = new_player_location
+            return player.look()
+        else:
+            return "You can't go that way."
 
 # Player functions dictionary to use with Parser
 # need a player functions function that initializes these
@@ -300,21 +372,27 @@ class Room:
         self.exits = exits
         # Occupants
         self.items = room_items # use a dictionary {"item name": object}
+        locations[self.examine_desc.lower()] = self 
 
-    # def __repr__(self):
-    #     if self.items != {}:
-    #         items_here = list(self.items.keys())
-    #         for item in items_here:
-    #             items_here_new = ""
-    #             items_here_new = items_here_new + item + ", "
-    #         items_here_new = items_here_new.strip(", ")
-    #         look_at_me = self.look_desc + "\n" + "In the room there are the folowing: " + items_here_new + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits
-    #     else:
-    #         look_at_me = self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits
-    #     return look_at_me
+    def describe_self(self):
+        if self.items != {}:
+            items_here = list(self.items.keys())
+            for item in items_here:
+                items_here_new = ""
+                item_scan = self.items[item]
+                if item_scan.is_hidden == False:
+                    items_here_new = items_here_new + item + ", "
+            items_here_new = items_here_new.strip(", ")
+            if items_here_new != "":
+                look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n" + "In the room there are the folowing: " + items_here_new + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n"
+            else:
+                look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n"
+        else:
+            look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n"
+        return look_at_me
 
     def check_oxygen(self):
-        if player.location == self.room_id and self.oxygen_level == 0:
+        if player.location == self and self.oxygen_level == 0:
             if player.eq[1][1] == "" and player.eq[0][1] == "":
                 if player.oxygen > 50:
                     print("You gasp... there's no oxygen in here!!!")
@@ -370,6 +448,8 @@ class Item:
         self.length_item = length_item # in inches
         self.weight = weight # in pounds
         self.in_inventory = False
+        self.is_equipped = False
+        self.is_hidden = False
         self.location = location
         # Health system attributes
         self.condition = condition_item
@@ -382,40 +462,49 @@ player_functions["equip"] = Player.equip
 player_functions["skills"] = Player.skills  
 player_functions["i"] = Player.inventory
 player_functions["inventory"] = Player.inventory
-player_functions["get"] = Player.get_here 
-print(player_functions)
+player_functions["get"] = Player.get_here
+player_functions["drop"] = Player.drop
+player_functions["l"] = Player.look
+player_functions["look"] = Player.look
+player_functions["skills"] = Player.skills
+player_functions["skill"] = Player.skills
+# print(player_functions)
 
 
 # Parser here
 def parse(input):
     input_list = input.split(" ", 1)
-    print(input_list)
+    # print(input_list)
+    input_long = input
     input = input_list[0]
     function_output = ""
     for key in player_functions.keys():
         if input_list[0] == key:
             function = player_functions.get(key)
-            print(function)
+            # print(function)
             if len(input_list) > 1:
                 command_arg = input_list[1]
+                print(input_long)
                 function_output = function(player, command_arg)
             elif len(input_list) == 1:
+                print(input_long)
                 function_output = function(player)
-            else:
-                print("Else error")
-                function_output = "What?"
             return function_output
     else:
-        return "What?"
+        print(input_long)
+        return Player.check_move(player, input_long)
 
 
 # Game Code
 
 # Testing functions interacting classes
 viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 39, "")
-engine_room = Room(1000, "This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "", 0, "galley, hallway", {viking_armor_1.name: viking_armor_1})
+viking_armor_1.is_hidden = False
+engine_room = Room(1000, "This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "Engine Room", 0, "galley, hallway", {viking_armor_1.name: viking_armor_1})
+hallway = Room(1001, "This is a long hallway that runs the length of the ship. There are several doors on either side of the hallway. At the ends of the hallway are heavy doors. ", "Hallway", 1, "bridge, medical room, dormitory, workshop, utility closet, engine room, hangar bay", {})
 player = Player("Tim", "male", 72, 220, 100, 100, 100, 100, 100, "well rested")
 player.location = [engine_room]
+# print(locations)
 # player.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
 # viking_helm_1 = Item("a viking helm", "head", 10, 1, 100)
 # viking_hammer_1 = Item("a viking hammer", "weapon", 14, 20, 100)
@@ -437,11 +526,12 @@ player.location = [engine_room]
 # print(player.equip())
 
 
-print(engine_room)
+print(engine_room.describe_self())
+# print(player.location)
 # print(player.get(viking_armor_1))
 # print(player.inv)
 # print(engine_room.get_here("a set of viking armor"))
-print(player.inventory())
+# print(player.inventory())
 
 # Actual Game Loop
 prompt = "hp: " + str(player.healthpoints) + "/" + str(player.maxhealthpoints) + " mp: " + str(player.movepoints) + "/" + str(player.maxmovepoints) + ": " # need creation function so that this is what it looks like.
@@ -468,6 +558,7 @@ def take_input():
         player_input = input(str(prompt))
         # doing something with the input
         if player_input == "score":
+            print(player_input)
             print(player)
         else:
             what_was_typed = parse(player_input)
