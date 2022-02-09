@@ -130,6 +130,8 @@ class Player:
                         else:
                             new_self_eq.append([list[0], list[1]])
                     self.eq = new_self_eq
+            else:
+                response = "You don't have that!"
             return response
 
 
