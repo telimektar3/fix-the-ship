@@ -11,21 +11,18 @@ prompt = ""
 thread_running = True
 # Player Class here
 class Player:
-    def __init__(self, name, sex, height, weight, oxygen, hp, max_hp, mp, max_mp, mp_string):
+    def __init__(self, name, hp, max_hp):
         # Biographical attributes
         self.name = name
-        self.sex = sex
-        self.height = height # in inches
-        self.weight = weight # in pounds
+        # self.sex = sex
+        # self.height = height # in inches
+        # self.weight = weight # in pounds
         self.location = []
         
         # Health system attributes
-        self.oxygen = oxygen # input as [effort, available% (100 - 0)]
+        # self.oxygen = oxygen # input as [effort, available% (100 - 0)]
         self.healthpoints = hp
         self.maxhealthpoints = max_hp
-        self.movepoints_string = mp_string
-        self.movepoints = mp
-        self.maxmovepoints = max_mp
         self.unconscious = False
         self.dead = False
         
@@ -34,7 +31,7 @@ class Player:
         self.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
         
         # Relationship system attributes
-        self.droid_relationship = 0
+        # self.droid_relationship = 0
         
         # Skill system attributes
         self.repair_skill = 0
@@ -44,7 +41,7 @@ class Player:
 
     # Run this with "score" input   
     def __repr__(self):
-        return "Your health is {hp}/{max_hp} and you are {mp_string}.".format(hp = self.healthpoints, max_hp = self.maxhealthpoints, mp_string = self.movepoints_string)
+        return "Your health is {hp}/{max_hp}.".format(hp = self.healthpoints, max_hp = self.maxhealthpoints)
 
 
 
@@ -64,18 +61,18 @@ class Player:
 
 
     # Run this with "skills" input
-    def skills(self, skill=""):
-        skill_list = ["repair", "search"]
-        if skill == "":
-            return "\nYour skills are:\n\n                repair: {repair}%\n                search: {search}%\n".format(repair = self.repair_skill, search = self.search_skill)
-        elif skill not in skill_list:
-            return "\nThat's not a skill. Try 'repair' or 'search' instead.\n"
-        elif skill == "repair":
-            repair_skill = "\nThis is a person's ability to 'repair' items or systems.\nYour repair skill is at {repair}% mastery at this time.\n".format(repair = self.repair_skill)
-            return repair_skill
-        else:
-            search_skill = "\nThis is a person's ability to find hidden items or 'search' through computer systems for needed information.\nYour search skill is at {search}% mastery at this time.\n".format(search = self.search_skill)
-            return search_skill
+    # def skills(self, skill=""):
+    #     skill_list = ["repair", "search"]
+    #     if skill == "":
+    #         return "\nYour skills are:\n\n                repair: {repair}%\n                search: {search}%\n".format(repair = self.repair_skill, search = self.search_skill)
+    #     elif skill not in skill_list:
+    #         return "\nThat's not a skill. Try 'repair' or 'search' instead.\n"
+    #     elif skill == "repair":
+    #         repair_skill = "\nThis is a person's ability to 'repair' items or systems.\nYour repair skill is at {repair}% mastery at this time.\n".format(repair = self.repair_skill)
+    #         return repair_skill
+    #     else:
+    #         search_skill = "\nThis is a person's ability to find hidden items or 'search' through computer systems for needed information.\nYour search skill is at {search}% mastery at this time.\n".format(search = self.search_skill)
+    #         return search_skill
 
 
 
@@ -171,56 +168,56 @@ class Player:
 
 
 
-    def repair_item(self, item):
-        repair_skill = self.repair_skill
-        initial_condition = item.condition
-        repair_skill_number = (repair_skill + random.randint(0, 100)) * .70
-        repair_outcome = repair_skill_number - initial_condition
-        skill_use_outcome = ""
-        skill_increase = ""
-        if repair_skill_number >= initial_condition:
-            if repair_outcome >= 10:
-                item.condition = item.condition + random.randint(10, 20)
-            elif repair_outcome >= 5:
-                item.condition = item.condition + random.randint(5, 10)
-            else:
-                item.condition = item.condition + random.randint(1, 5)
-            skill_use_outcome = "You repaired {item}.".format(item = item.name)
-        elif repair_skill_number < initial_condition:
-            if repair_outcome <= -15:
-                item.condition = item.condition - random.randint(1, 5)
-                skill_use_outcome =  "That didn't work. You might have made it worse."
-            elif repair_outcome > -15:
-                skill_use_outcome = "Your repair fails, but you don't seem to have made it worse."
-        self.repair_prac += 1
-        if self.repair_prac > (self.repair_skill + 1) * 0.5:
-            self.repair_skill += 1
-            skill_increase =  "Your skill at repairing increased!"
-        final_repair_msg = skill_use_outcome + "\n" + skill_increase
-        return final_repair_msg
+    # def repair_item(self, item):
+    #     repair_skill = self.repair_skill
+    #     initial_condition = item.condition
+    #     repair_skill_number = (repair_skill + random.randint(0, 100)) * .70
+    #     repair_outcome = repair_skill_number - initial_condition
+    #     skill_use_outcome = ""
+    #     skill_increase = ""
+    #     if repair_skill_number >= initial_condition:
+    #         if repair_outcome >= 10:
+    #             item.condition = item.condition + random.randint(10, 20)
+    #         elif repair_outcome >= 5:
+    #             item.condition = item.condition + random.randint(5, 10)
+    #         else:
+    #             item.condition = item.condition + random.randint(1, 5)
+    #         skill_use_outcome = "You repaired {item}.".format(item = item.name)
+    #     elif repair_skill_number < initial_condition:
+    #         if repair_outcome <= -15:
+    #             item.condition = item.condition - random.randint(1, 5)
+    #             skill_use_outcome =  "That didn't work. You might have made it worse."
+    #         elif repair_outcome > -15:
+    #             skill_use_outcome = "Your repair fails, but you don't seem to have made it worse."
+    #     self.repair_prac += 1
+    #     if self.repair_prac > (self.repair_skill + 1) * 0.5:
+    #         self.repair_skill += 1
+    #         skill_increase =  "Your skill at repairing increased!"
+    #     final_repair_msg = skill_use_outcome + "\n" + skill_increase
+    #     return final_repair_msg
 
-    # Run this with "repair" input
-    def repair(self, item = ""):
-        if item == None:
-            return "You should input: repair 'item name'."
-        elif item not in player.inv:
-            return "You don't have that in your possession."
-        elif item.condition >= 90:
-            item_name = item.name
-            return item_name.capitalize() + " is already in perfect condition."
-        else:
-            item_name = item.name
-            print(self.repair_item(item))
-            if item.condition <= 10:
-                return item_name.capitalize() + " is in very bad condition."
-            elif item.condition > 10 and item.condition <= 40:
-                return item_name.capitalize() + " is in bad condition."
-            elif item.condition > 40 and item.condition <= 60:
-                return item_name.capitalize() + " is in okay condition."
-            elif item.condition > 60 and item.condition <= 80:
-                return item_name.capitalize() + " is in good condition."
-            else:
-                return item_name.capitalize() + " is in very good condition."
+    # # Run this with "repair" input
+    # def repair(self, item = ""):
+    #     if item == None:
+    #         return "You should input: repair 'item name'."
+    #     elif item not in player.inv:
+    #         return "You don't have that in your possession."
+    #     elif item.condition >= 90:
+    #         item_name = item.name
+    #         return item_name.capitalize() + " is already in perfect condition."
+    #     else:
+    #         item_name = item.name
+    #         print(self.repair_item(item))
+    #         if item.condition <= 10:
+    #             return item_name.capitalize() + " is in very bad condition."
+    #         elif item.condition > 10 and item.condition <= 40:
+    #             return item_name.capitalize() + " is in bad condition."
+    #         elif item.condition > 40 and item.condition <= 60:
+    #             return item_name.capitalize() + " is in okay condition."
+    #         elif item.condition > 60 and item.condition <= 80:
+    #             return item_name.capitalize() + " is in good condition."
+    #         else:
+    #             return item_name.capitalize() + " is in very good condition."
 
  
 
@@ -229,16 +226,16 @@ class Player:
 
  
     # Run this with "search" input
-    def search(self, item = ""):
-        pass
+    # def search(self, item = ""):
+    #     pass
     # "Search" should have a case that looks for parts where it finds parts necessary to repair the ship
     # in the current room. Need to create an attribute that includes a list of the necessary repair items.
     # this search function should only be usable if the player has talked to the droid about what parts are
     # necessary.
 
     # Run this with "rest" input
-    def rest(self):
-        pass # make sure that you complete this
+    # def rest(self):
+    #     pass # make sure that you complete this
 
     # Run this with "look" input
     def look(self, place = ""):
@@ -299,6 +296,7 @@ class Player:
                 if item_object.is_equipped == True:
                     Player.remove(player, item)
                     print("You unequip " + item)
+                    item_object.is_equipped = False
                 here.items[item] = item_object
                 # print(here.items)
                 item_object.in_inventory = False
@@ -310,14 +308,42 @@ class Player:
             else:
                 return "You don't have " + item + "!"
             
+    def give(self, string = ""):
+        if string == "":
+            return "Give <what> to <who>?"
+        # Need to split string here
+        current_room = self.location
+        here = current_room[0]
+        new_target = []
+        if target in here.occupants:
+            new_target.append(here.occupants[1])
+            if item in self.inv.keys():
+                item_object = self.inv[item]
+                if item_object.is_equipped == True:
+                    Player.remove(player, item)
+                    print("You unequip " + item)
+                    item_object.is_equipped = False
+                here.items[item] = item_object
+                item_object.in_inventory = False
+                del self.inv[item]
+                # print(self.inv)
+                # print(here.items)
+                # print(item_object.in_inventory)
+                return "You give " + item + "to {target}.".format(target = target)
+            else:
+                return "You don't have " + item + "!"
+        else:
+            return "They aren't here."
+        
+
 
 
     # needs to also edit player.inv and remove item.name from that list
 
  
     # Need player function for "help" that lists commands: maybe help(blank,[command from list inside function])
-    def help(self, topic = ""):
-        pass
+    # def help(self, topic = ""):
+    #     pass
 
     # Need player function that uses oxygen based on weight of items and body size/weight: 
         # "Air Consumption Rate All other factors being equal, a diver’s air consumption rate, also called his Surface Air Consumption Rate (SAC rate) 
@@ -326,8 +352,8 @@ class Player:
         # air consumption rate. A variety of factors effect an individual’s air consumption rate, including stress, experience level, buoyancy control, and 
         # the amount of exercise the diver does on a dive. Relaxed, slow, and deep breathing is usually the best way for a diver to reduce his air consumption rate." 
         # - https://www.omegadivers.com/how-long-does-a-scuba-tank-last/
-    def air_usage(self):
-        pass
+    # def air_usage(self):
+    #     pass
 
     def check_move(self, input):
         if input in locations.keys():
@@ -370,16 +396,17 @@ class Player:
 class Room:
     room_id_count = 0
 
-    def __init__(self, desc, ex_desc, oxy_level, exits, room_items):
+    def __init__(self, desc, ex_desc, exits, room_items, occupants_name, occupant):
         # Room sensorium
         self.look_desc = desc
         self.examine_desc = ex_desc
         # Environmental system attributes
-        self.oxygen_level = oxy_level
+        # self.oxygen_level = oxy_level
         # Direction
         self.exits = exits
         # Occupants
         self.items = room_items # use a dictionary {"item name": object}
+        self.occupants = [occupants_name, occupant]
         locations[self.examine_desc.lower()] = self
         Room.room_id_count += 1
         self.room_id = Room.room_id_count
@@ -402,84 +429,86 @@ class Room:
             look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n"
         return look_at_me
 
-    def check_oxygen(self):
-        if player.location == self and self.oxygen_level == 0:
-            if player.eq[1][1] == "" and player.eq[0][1] == "":
-                if player.oxygen > 50:
-                    print("You gasp... there's no oxygen in here!!!")
-                    self.drain_oxygen()
-                else:
-                    self.drain_oxygen()
-            else:
-                return
-        else:
-            return
+    # def check_oxygen(self):
+    #     if player.location == self and self.oxygen_level == 0:
+    #         if player.eq[1][1] == "" and player.eq[0][1] == "":
+    #             if player.oxygen > 50:
+    #                 print("You gasp... there's no oxygen in here!!!")
+    #                 self.drain_oxygen()
+    #             else:
+    #                 self.drain_oxygen()
+    #         else:
+    #             return
+    #     else:
+    #         return
             
-    def drain_oxygen(self):
-        if player.oxygen == 0:
-            player.healthpoints = player.healthpoints - 5
-            print("It's hard to focus on anything, and the world is going gray.")
-        elif 30 < player.oxygen <= 50:
-            print("Your worries just seem to be slipping away...")
-            player.oxygen = player.oxygen - 10
-        else:
-            print("Who knew life could be so great?")
-            player.oxygen = player.oxygen - 10
+    # def drain_oxygen(self):
+    #     if player.oxygen == 0:
+    #         player.healthpoints = player.healthpoints - 5
+    #         print("It's hard to focus on anything, and the world is going gray.")
+    #     elif 30 < player.oxygen <= 50:
+    #         print("Your worries just seem to be slipping away...")
+    #         player.oxygen = player.oxygen - 10
+    #     else:
+    #         print("Who knew life could be so great?")
+    #         player.oxygen = player.oxygen - 10
 
 
 # Droid Class here
 class Droid:
-    def __init__(self, name, height, weight, hp, mp, inventory, droid_relate, location):
+    def __init__(self, name, inventory, location):
         # Biographical attributes
         self.name = name
-        self.sex = "Robot"
-        self.height = height # in inches
-        self.weight = weight # in pounds
+        # self.sex = "Robot"
+        # self.height = height # in inches
+        # self.weight = weight # in pounds
         self.location = location
         # Health system attributes
-        self.healthpoints = hp
-        self.movepoints = mp
+        # self.healthpoints = hp
+        # self.movepoints = mp
         self.unconscious = True # droid starts out in a powered down state
         self.dead = False
         # Inventory system attributes
         self.inventory = inventory
         # Relationship system attributes
-        self.droid_relationship = droid_relate
+        # self.droid_relationship = droid_relate
         # Skill system attributes
-        self.repair_skill = 100
-        self.medical_skill = 100
+        # self.repair_skill = 100
+        # self.medical_skill = 100
 
 
 # Item class here
 class Item:
-    def __init__(self, name, item_id, length_item, weight, condition_item, location):
+    def __init__(self, name, item_id, location):
         # Biographical attributes
         self.name = name
         self.id = item_id # Can be "head", "chest" "hand" 
-        self.length_item = length_item # in inches
-        self.weight = weight # in pounds
+        # self.length_item = length_item # in inches
+        # self.weight = weight # in pounds
         self.in_inventory = False
         self.is_equipped = False
         self.is_hidden = False
         self.location = location
         # Health system attributes
-        self.condition = condition_item
+        # self.condition = condition_item
 
 # Function Dictionary for Parser
-player_functions["repair"] = Player.repair
+# player_functions["repair"] = Player.repair
 player_functions["remove"] = Player.remove     
 player_functions["eq"] = Player.equip
 player_functions["equip"] = Player.equip 
-player_functions["skills"] = Player.skills  
+# player_functions["skills"] = Player.skills  
 player_functions["i"] = Player.inventory
 player_functions["inventory"] = Player.inventory
 player_functions["get"] = Player.get_here
 player_functions["drop"] = Player.drop
 player_functions["l"] = Player.look
 player_functions["look"] = Player.look
-player_functions["skills"] = Player.skills
-player_functions["skill"] = Player.skills
+# player_functions["skills"] = Player.skills
+# player_functions["skill"] = Player.skills
 player_functions["quit"] = Player.quit
+player_functions["give"] = Player.give
+
 # print(player_functions)
 
 
@@ -510,11 +539,10 @@ def parse(input):
 # Game Code
 
 # Testing functions interacting classes
-viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 39, "")
-viking_armor_1.is_hidden = False
-engine_room = Room("This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "Engine Room", 0, "galley, hallway", {viking_armor_1.name: viking_armor_1})
-hallway = Room("This is a long hallway that runs the length of the ship. There are several doors on either side of the hallway. At the ends of the hallway are heavy doors. ", "Hallway", 1, "bridge, medical room, dormitory, workshop, utility closet, engine room, hangar bay", {})
-player = Player("Tim", "male", 72, 220, 100, 100, 100, 100, 100, "well rested")
+viking_armor_1 = Item("a set of viking armor", "chest", "")
+engine_room = Room("This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "Engine Room", "galley, hallway", {viking_armor_1.name: viking_armor_1}, "", "")
+hallway = Room("This is a long hallway that runs the length of the ship. There are several doors on either side of the hallway. At the ends of the hallway are heavy doors. ", "Hallway", "bridge, medical room, dormitory, workshop, utility closet, engine room, hangar bay", {}, "", "")
+player = Player("Tim", 100, 100)
 player.location = [engine_room]
 # print(locations)
 # player.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
@@ -546,7 +574,7 @@ print(engine_room.describe_self())
 # print(player.inventory())
 
 # Actual Game Loop
-prompt = "hp: " + str(player.healthpoints) + "/" + str(player.maxhealthpoints) + " mp: " + str(player.movepoints) + "/" + str(player.maxmovepoints) + ": " # need creation function so that this is what it looks like.
+prompt = "hp: " + str(player.healthpoints) + "/" + str(player.maxhealthpoints) + ": " # need creation function so that this is what it looks like.
 
 
 def my_forever_while():
