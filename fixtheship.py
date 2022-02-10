@@ -347,6 +347,11 @@ class Player:
         else:
             return "You can't go that way."
 
+    def quit(self): # need a save function so that progress on game can be made, perhaps with a yes/no prompt?
+        global thread_running
+        thread_running = False
+        return "See you later."
+        
 # Player functions dictionary to use with Parser
 # need a player functions function that initializes these
 
@@ -363,18 +368,22 @@ class Player:
 
 # Room Class here
 class Room:
-    def __init__(self, room_id, desc, ex_desc, oxy_level, exits, room_items):
+    room_id_count = 0
+
+    def __init__(self, desc, ex_desc, oxy_level, exits, room_items):
         # Room sensorium
         self.look_desc = desc
         self.examine_desc = ex_desc
         # Environmental system attributes
         self.oxygen_level = oxy_level
-        self.room_id = room_id
         # Direction
         self.exits = exits
         # Occupants
         self.items = room_items # use a dictionary {"item name": object}
-        locations[self.examine_desc.lower()] = self 
+        locations[self.examine_desc.lower()] = self
+        Room.room_id_count += 1
+        self.room_id = Room.room_id_count
+         
 
     def describe_self(self):
         if self.items != {}:
@@ -470,6 +479,7 @@ player_functions["l"] = Player.look
 player_functions["look"] = Player.look
 player_functions["skills"] = Player.skills
 player_functions["skill"] = Player.skills
+player_functions["quit"] = Player.quit
 # print(player_functions)
 
 
@@ -502,8 +512,8 @@ def parse(input):
 # Testing functions interacting classes
 viking_armor_1 = Item("a set of viking armor", "chest", 10, 1, 39, "")
 viking_armor_1.is_hidden = False
-engine_room = Room(1000, "This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "Engine Room", 0, "galley, hallway", {viking_armor_1.name: viking_armor_1})
-hallway = Room(1001, "This is a long hallway that runs the length of the ship. There are several doors on either side of the hallway. At the ends of the hallway are heavy doors. ", "Hallway", 1, "bridge, medical room, dormitory, workshop, utility closet, engine room, hangar bay", {})
+engine_room = Room("This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "Engine Room", 0, "galley, hallway", {viking_armor_1.name: viking_armor_1})
+hallway = Room("This is a long hallway that runs the length of the ship. There are several doors on either side of the hallway. At the ends of the hallway are heavy doors. ", "Hallway", 1, "bridge, medical room, dormitory, workshop, utility closet, engine room, hangar bay", {})
 player = Player("Tim", "male", 72, 220, 100, 100, 100, 100, 100, "well rested")
 player.location = [engine_room]
 # print(locations)
