@@ -255,7 +255,6 @@ class Player:
             # location_object = player.location[0]
             # print(location_object.look_desc)
         elif place != "" and place.capitalize() in str(room_desc.occupants):
-            print(str(room_desc.occupants))
             return droid.describe_droid()
 
     # Run this with "get" input
@@ -388,20 +387,20 @@ class Player:
         here = current_room[0]
         occupant = here.occupants
         new_string = string.split("on ", 1)
-        print(new_string)
         if new_string == "":
             return "Turn on who?"
         if len(new_string) > 1: 
-            print(new_string[1])
             if new_string[1].capitalize() == "Robbie":
                 key = new_string[1].capitalize()
                 occupant_new = occupant[new_string[1].capitalize()]
                 if key.capitalize() in occupant:
                     if occupant_new.plugged_in == False:
                         return "You should <plug Robbie in> first."
-                    else:
+                    elif occupant_new.plugged_in == True and occupant_new.unconscious == True:
                         occupant_new.unconscious = False
                         return occupant_new.plug_in()
+                    else:
+                        return "\nRobbie stops you from touching his power cord. 'I'm all juiced up.'\n"
                 else:
                     return "Turn on who?"
             else:
@@ -450,7 +449,7 @@ class Room:
 
     def describe_self(self):
         occupants = ""
-        if self.occupants != {}:
+        if self.occupants != {"": ""}:
             for key in self.occupants.keys():
                 occupants_key = self.occupants[key]
                 occupants += occupants_key.name
@@ -464,11 +463,11 @@ class Room:
                     items_here_new = items_here_new + item + ", "
             items_here_new = items_here_new.strip(", ")
             if items_here_new != "":
-                look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n" + "In the room there are the folowing: " + items_here_new + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n\n" + occupants + " is here.\n"
+                look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n\n" + "In the room there are the folowing: " + items_here_new + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n\n" + occupants +"\n"
             else:
-                look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n\n" + occupants + " is here.\n"
+                look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n\n" + occupants +"\n"
         else:
-            look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n\n" + occupants + " is here.\n"
+            look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n\n" + occupants +"\n"
         return look_at_me
 
 
@@ -529,7 +528,7 @@ class Droid:
         if self.unconscious:
             return "This droid has the word 'Robbie' painted across his chest. He appears to be powered off. Maybe you should <turn on Robbie>?"
         else:
-            return "This droid has the word 'Robbie' painted across his chest. His eyes are two glowing pink orbs in a mechanical face./n He looks friendly. /n Maybe you could say 'Hi'?"
+            return "This droid has the word 'Robbie' painted across his chest. His eyes are two glowing pink orbs in a mechanical face.\n He looks friendly. \n Maybe you could say 'Hi'?"
 
     def plug_in(self):
         self.plugged_in = True
@@ -557,9 +556,9 @@ class Droid:
         time.sleep(0.1)
         print("\n\nThe green light glows brightly on Robbie's chest.")
         time.sleep(9)
-        print("\nRobbie says: 'Thank you for powering me up.")
+        print("\nRobbie says: 'Thank you for powering me up.'")
         time.sleep(5)
-        return "\nRobbie says: 'It has been two-hundred days since I last was activated. Oh my.\n"
+        return "\nRobbie says: 'It has been two-hundred days since I last was activated. Oh my.'\n"
 
 # Item class here
 class Item:
