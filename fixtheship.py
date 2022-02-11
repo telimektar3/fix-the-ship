@@ -242,7 +242,7 @@ class Player:
         room_desc = player.location[0]
         if place == "":
             return room_desc.describe_self()
-        elif place != "":
+        elif place != "" and place in room_desc.items:
             items_here = room_desc.items.keys()
             for item in items_here:
                 if place == item and room_desc.items[item].is_hidden == False:
@@ -254,6 +254,9 @@ class Player:
                     return "You don't see that here."
             # location_object = player.location[0]
             # print(location_object.look_desc)
+        elif place != "" and place.capitalize() in str(room_desc.occupants):
+            print(str(room_desc.occupants))
+            return droid.describe_droid()
 
     # Run this with "get" input
     
@@ -311,30 +314,37 @@ class Player:
     def give(self, string = ""):
         if string == "":
             return "Give <what> to <who>?"
-        # Need to split string here
-        current_room = self.location
-        here = current_room[0]
-        new_target = []
-        if target in here.occupants:
-            new_target.append(here.occupants[1])
-            if item in self.inv.keys():
-                item_object = self.inv[item]
-                if item_object.is_equipped == True:
-                    Player.remove(player, item)
-                    print("You unequip " + item)
-                    item_object.is_equipped = False
-                here.items[item] = item_object
-                item_object.in_inventory = False
-                del self.inv[item]
-                # print(self.inv)
-                # print(here.items)
-                # print(item_object.in_inventory)
-                return "You give " + item + "to {target}.".format(target = target)
-            else:
-                return "You don't have " + item + "!"
         else:
-            return "They aren't here."
-        
+            new_split = string.split(" to ", 1)
+            print(new_split)
+            if not len(new_split) > 1:
+                return "Give <what> to <who>?"
+            else:
+                item = new_split[0]
+                target = new_split[1].capitalize
+                current_room = self.location
+                here = current_room[0]
+                new_target = []
+                if target in here.occupants:
+                    new_target.append(here.occupants[target])
+                    if item in self.inv.keys():
+                        item_object = self.inv[item]
+                        if item_object.is_equipped == True:
+                            Player.remove(player, item)
+                            print("You unequip " + item)
+                            item_object.is_equipped = False
+                        here.items[item] = item_object
+                        item_object.in_inventory = False
+                        del self.inv[item]
+                        # print(self.inv)
+                        # print(here.items)
+                        # print(item_object.in_inventory)
+                        return "You give " + item + " to {target}.".format(target = target)
+                    else:
+                        return "You don't have " + item + "!"
+                else:
+                    return "They aren't here."
+            
 
 
 
@@ -373,6 +383,32 @@ class Player:
         else:
             return "You can't go that way."
 
+    def turn_on(self, string = ""):
+        current_room = self.location
+        here = current_room[0]
+        occupant = here.occupants
+        new_string = string.split("on ", 1)
+        print(new_string)
+        if new_string == "":
+            return "Turn on who?"
+        if len(new_string) > 1: 
+            print(new_string[1])
+            if new_string[1].capitalize() == "Robbie":
+                key = new_string[1].capitalize()
+                occupant_new = occupant[new_string[1].capitalize()]
+                if key.capitalize() in occupant:
+                    if occupant_new.plugged_in == False:
+                        return "You should <plug Robbie in> first."
+                    else:
+                        occupant_new.unconscious = False
+                        return occupant_new.plug_in()
+                else:
+                    return "Turn on who?"
+            else:
+                return "Turn on who?"
+        else:
+            return "Turn on who?"
+
     def quit(self): # need a save function so that progress on game can be made, perhaps with a yes/no prompt?
         global thread_running
         thread_running = False
@@ -406,13 +442,19 @@ class Room:
         self.exits = exits
         # Occupants
         self.items = room_items # use a dictionary {"item name": object}
-        self.occupants = [occupants_name, occupant]
+        self.occupants = {occupants_name: occupant}
         locations[self.examine_desc.lower()] = self
         Room.room_id_count += 1
         self.room_id = Room.room_id_count
          
 
     def describe_self(self):
+        occupants = ""
+        if self.occupants != {}:
+            for key in self.occupants.keys():
+                occupants_key = self.occupants[key]
+                occupants += occupants_key.name
+        occupants = occupants.strip(", ")
         if self.items != {}:
             items_here = list(self.items.keys())
             for item in items_here:
@@ -422,12 +464,19 @@ class Room:
                     items_here_new = items_here_new + item + ", "
             items_here_new = items_here_new.strip(", ")
             if items_here_new != "":
-                look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n" + "In the room there are the folowing: " + items_here_new + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n"
+                look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n" + "In the room there are the folowing: " + items_here_new + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n\n" + occupants + " is here.\n"
             else:
-                look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n"
+                look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n\n" + occupants + " is here.\n"
         else:
-            look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n"
+            look_at_me = "\n" + self.examine_desc + ":\n" + self.look_desc + "\n\n" + "You can see the following exits:\n------------------------------\n" + self.exits + "\n\n" + occupants + " is here.\n"
         return look_at_me
+
+
+        
+
+    # def check_occupants(self):
+    #     if self.occupants == []:
+
 
     # def check_oxygen(self):
     #     if player.location == self and self.oxygen_level == 0:
@@ -467,7 +516,7 @@ class Droid:
         # self.healthpoints = hp
         # self.movepoints = mp
         self.unconscious = True # droid starts out in a powered down state
-        self.dead = False
+        self.plugged_in = False
         # Inventory system attributes
         self.inventory = inventory
         # Relationship system attributes
@@ -475,7 +524,42 @@ class Droid:
         # Skill system attributes
         # self.repair_skill = 100
         # self.medical_skill = 100
+    
+    def describe_droid(self):
+        if self.unconscious:
+            return "This droid has the word 'Robbie' painted across his chest. He appears to be powered off. Maybe you should <turn on Robbie>?"
+        else:
+            return "This droid has the word 'Robbie' painted across his chest. His eyes are two glowing pink orbs in a mechanical face./n He looks friendly. /n Maybe you could say 'Hi'?"
 
+    def plug_in(self):
+        self.plugged_in = True
+        print("You plug Robbie's cord into an outlet in the wall.")
+        time.sleep(2)
+        print("\nA green light begins to blink on Robbie's chest.")
+        time.sleep(2)
+        print("\nThe light continues to blink")
+        time.sleep(1)
+        print("\nblink")
+        time.sleep(1)
+        print("\nblink")
+        time.sleep(1)
+        print("\nblink")
+        time.sleep(0.5)
+        print("\nblink")
+        time.sleep(0.5)
+        print("\nblink")
+        time.sleep(0.1)
+        print("\nblink")        
+        time.sleep(0.1)
+        print("\nblink")       
+        time.sleep(0.1)
+        print("\nblink")
+        time.sleep(0.1)
+        print("\n\nThe green light glows brightly on Robbie's chest.")
+        time.sleep(9)
+        print("\nRobbie says: 'Thank you for powering me up.")
+        time.sleep(5)
+        return "\nRobbie says: 'It has been two-hundred days since I last was activated. Oh my.\n"
 
 # Item class here
 class Item:
@@ -508,6 +592,7 @@ player_functions["look"] = Player.look
 # player_functions["skill"] = Player.skills
 player_functions["quit"] = Player.quit
 player_functions["give"] = Player.give
+player_functions["turn"] = Player.turn_on
 
 # print(player_functions)
 
@@ -538,48 +623,22 @@ def parse(input):
 
 # Game Code
 
-# Testing functions interacting classes
+# Game Thread Setup
 viking_armor_1 = Item("a set of viking armor", "chest", "")
 engine_room = Room("This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "Engine Room", "galley, hallway", {viking_armor_1.name: viking_armor_1}, "", "")
 hallway = Room("This is a long hallway that runs the length of the ship. There are several doors on either side of the hallway. At the ends of the hallway are heavy doors. ", "Hallway", "bridge, medical room, dormitory, workshop, utility closet, engine room, hangar bay", {}, "", "")
 player = Player("Tim", 100, 100)
 player.location = [engine_room]
-# print(locations)
-# player.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
-# viking_helm_1 = Item("a viking helm", "head", 10, 1, 100)
-# viking_hammer_1 = Item("a viking hammer", "weapon", 14, 20, 100)
-# viking_caliper_1 = Item("a viking caliper", "tool", 12, 5, 100)
-# banana_1 = Item("a green banana", "food", 5, 0.5, 100)
-
-# viking_armor_1.in_inventory = True
-# player.inv = [viking_armor_1]
-
-# print(player.equip(viking_hammer_1))
-# # print(player.equip(viking_armor_1))
-# # print(player.equip())
-# # print(player.inventory())
-# print(player.equip())
-# print(player.remove(viking_armor_1))
-# print(player.inventory())
-# print(player.equip())
-# print(player.equip(viking_armor_1))
-# print(player.equip())
-
-
+droid = Droid("Robbie", {}, engine_room)
+droid.plugged_in = True
+engine_room.occupants = {droid.name: droid}
 print(engine_room.describe_self())
-# print(player.location)
-# print(player.get(viking_armor_1))
-# print(player.inv)
-# print(engine_room.get_here("a set of viking armor"))
-# print(player.inventory())
-
-# Actual Game Loop
-prompt = "hp: " + str(player.healthpoints) + "/" + str(player.maxhealthpoints) + ": " # need creation function so that this is what it looks like.
+prompt = "hp: " + str(player.healthpoints) + "/" + str(player.maxhealthpoints) + ": "
 
 
 def my_forever_while():
     global thread_running
-
+    
     # start_time = time.time()
 
     # # run this while there is no input
@@ -614,3 +673,5 @@ if __name__ == '__main__':
     t2.join()  # interpreter will wait until your process get completed or terminated
     # thread_running = False
     print('Good-bye.')
+
+# Actual Game
