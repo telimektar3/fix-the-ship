@@ -436,6 +436,12 @@ class Player:
         else:
             return "That person isn't here."
 
+    def say(self, string = ""):
+        if string == "":
+            return "You mumble to yourself."
+        else:
+            return "You say: {string}".format(string = string)
+
     def quit(self): # need a save function so that progress on game can be made, perhaps with a yes/no prompt?
         global thread_running
         thread_running = False
@@ -551,6 +557,20 @@ class Droid:
         # Skill system attributes
         # self.repair_skill = 100
         # self.medical_skill = 100
+
+    def listen(self, input):    
+        current_room = player.location[0]
+        listening_for = "say"
+        hi = input.lower()
+        if current_room != self.location:
+            return
+        elif droid.unconscious == False:
+            if listening_for in input:
+                if "hi" in hi:
+                    return "\nRobbie says: 'Hello, {player_name}'".format(player_name = player.name)
+        else:
+            return
+            
     
     def describe_droid(self):
         if self.unconscious:
@@ -620,6 +640,7 @@ player_functions["quit"] = Player.quit
 player_functions["give"] = Player.give
 player_functions["turn"] = Player.turn_on
 player_functions["plug"] = Player.plug_in
+player_functions["say"] = Player.say
 
 # print(player_functions)
 
@@ -642,7 +663,13 @@ def parse(input):
             elif len(input_list) == 1:
                 print(input_long)
                 function_output = function(player)
-            return function_output
+            droid_output = droid.listen(function_output)
+            if droid_output == None:
+                return function_output
+            else:
+                print(function_output)
+                time.sleep(0.5)
+                return droid_output
     else:
         print(input_long)
         return Player.check_move(player, input_long)
