@@ -1,4 +1,4 @@
-# Fix the Ship
+# Fix the Ship v0.5.0
 # Timothy Goode (telimektar3)
 import random
 from threading import Thread
@@ -256,6 +256,8 @@ class Player:
             # print(location_object.look_desc)
         elif place != "" and place.capitalize() in str(room_desc.occupants):
             return droid.describe_droid()
+        else:
+            return "What?"
 
     # Run this with "get" input
     
@@ -558,10 +560,11 @@ class Droid:
         # self.repair_skill = 100
         # self.medical_skill = 100
 
-    def listen(self, input):    
+    def listen(self, input = ""):    
         current_room = player.location[0]
         listening_for = "say"
-        hi = input.lower()
+        if input != None:
+                hi = input.lower()
         if current_room != self.location:
             return
         elif droid.unconscious == False:
@@ -681,13 +684,67 @@ def parse(input):
 viking_armor_1 = Item("a set of viking armor", "chest", "")
 engine_room = Room("This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "Engine Room", "galley, hallway", {viking_armor_1.name: viking_armor_1}, "", "")
 hallway = Room("This is a long hallway that runs the length of the ship. There are several doors on either side of the hallway. At the ends of the hallway are heavy doors. ", "Hallway", "bridge, medical room, dormitory, workshop, utility closet, engine room, hangar bay", {}, "", "")
-player = Player("Tim", 100, 100)
+medical_room = Room("This is a small medical room. There is a bed for the patient to lay on. There are various kinds of medical equipment on the walls.", "Medical Room", "hallway",{}, "", "")
+player = Player("blanker", 100, 100)
 player.location = [engine_room]
 droid = Droid("Robbie", {}, engine_room)
 # droid.plugged_in = True
 engine_room.occupants = {droid.name: droid}
-print(engine_room.describe_self())
 prompt = "hp: " + str(player.healthpoints) + "/" + str(player.maxhealthpoints) + ": "
+
+print("\n\n\n\n\n\n\n    _______  __  ___   ___    .___________. __    __   _______         _______. __    __   __  .______")   
+print("   |   ____||  | \  \ /  /    |           ||  |  |  | |   ____|       /       ||  |  |  | |  | |   _  \\")
+print("   |  |__   |  |  \  V  /     `---|  |----`|  |__|  | |  |__         |   (----`|  |__|  | |  | |  |_)  |") 
+print("   |   __|  |  |   >   <          |  |     |   __   | |   __|         \   \    |   __   | |  | |   ___/")  
+print("   |  |     |  |  /  .  \         |  |     |  |  |  | |  |____    .----)   |   |  |  |  | |  | |  |")      
+print("   |__|     |__| /__/ \__\        |__|     |__|  |__| |_______|   |_______/    |__|  |__| |__| | _|\n\n\n")
+
+time.sleep(5)
+
+initial_name = input(str("What is your name? "))
+player.name = initial_name
+time.sleep(1)
+print("\n\nHello, {player}".format(player = player.name))
+time.sleep(1)
+print("\n\nWelcome to your very own adventure. You will use your reading, typing and puzzle skills to fix a spaceship. You will find a robot on the ship that you can interact with. There will be items to pick up and use.\n\n\n")
+input(str("Continue"))
+print("\nIf you ever need help you can type the word 'help'\n")
+begin_now = "Push ENTER to begin your adventure.\n\n"
+input(str(begin_now))
+print("\n\n\n\n\n\n\n\n")
+time.sleep(1)
+print("..........\n\n\n\n\n\n\n\n\n\n\n\n")
+time.sleep(1)
+print(".........\n\n\n\n\n\n\n\n\n\n\n\n")
+time.sleep(1)
+print("........\n\n\n\n\n\n\n\n\n\n\n\n")
+time.sleep(1)
+print(".......\n\n\n\n\n\n\n\n\n\n\n\n")
+time.sleep(1)
+print("......\n\n\n\n\n\n\n\n\n\n\n\n")
+time.sleep(1)
+print(".....\n\n\n\n\n\n\n\n\n\n\n\n")
+time.sleep(1)
+print("....\n\n\n\n\n\n\n\n\n\n\n\n")
+time.sleep(1)
+print("...\n\n\n\n\n\n\n\n\n\n\n\n")
+time.sleep(1)
+print("..\n\n\n\n\n\n\n\n\n\n\n\n")
+time.sleep(1)
+print(".\n\n\n\n\n\n\n\n\n\n\n\n")
+time.sleep(3)
+print("\n\n\n\n\n\n\n\n\n\n\n\n")
+print("You open your eyes. There is a bright light that makes it hard to see.\n\n")
+time.sleep(4)
+print("You rub your eyes. After a little bit you can see that you are in the medical room of a spaceship.")
+input(str("\n\n\nPress ENTER to continue "))
+print("\n\n\n\n\n\nYou can hear an alarm sounding, and the lights are flickering. You remember flying your ship through space when you suddenly flew into an asteroid belt. The last thing you remember is a big asteroid slamming into the side of your ship.\n\n")
+input(str("Press ENTER to continue "))
+print("\n\n\n\n\n\nYou wonder who brought you the medical room. Maybe it was Robbie?\n\n")
+input(str("Press ENTER to continue"))
+print("\n\n\n\n\n\n")
+print(medical_room.describe_self())
+
 
 
 def my_forever_while():
@@ -726,6 +783,13 @@ if __name__ == '__main__':
 
     t2.join()  # interpreter will wait until your process get completed or terminated
     # thread_running = False
-    print('Good-bye.')
+    print('Good-bye.') # maybe change this
 
 # Actual Game
+# Intro Screen
+print("\n\n\n    _______  __  ___   ___    .___________. __    __   _______         _______. __    __   __  .______")   
+print("   |   ____||  | \  \ /  /    |           ||  |  |  | |   ____|       /       ||  |  |  | |  | |   _  \\")
+print("   |  |__   |  |  \  V  /     `---|  |----`|  |__|  | |  |__         |   (----`|  |__|  | |  | |  |_)  |") 
+print("   |   __|  |  |   >   <          |  |     |   __   | |   __|         \   \    |   __   | |  | |   ___/")  
+print("   |  |     |  |  /  .  \         |  |     |  |  |  | |  |____    .----)   |   |  |  |  | |  | |  |")      
+print("   |__|     |__| /__/ \__\        |__|     |__|  |__| |_______|   |_______/    |__|  |__| |__| | _|\n\n\n\n")      
