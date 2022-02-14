@@ -398,7 +398,11 @@ class Player:
                         return "You should <plug Robbie in> first."
                     elif occupant_new.plugged_in == True and occupant_new.unconscious == True:
                         occupant_new.unconscious = False
-                        return occupant_new.plug_in()
+                        print("\nThe green light on Robbie's chest glows a bit brighter, and you hear a soft 'click'.")
+                        time.sleep(5)
+                        print("\nRobbie's eyes brigthen and there is a whirring noise.")
+                        time.sleep(5)
+                        return "\nRobbie says: 'It has been two-hundred days since I last was activated. Oh my.'\n"
                     else:
                         return "\nRobbie stops you from touching his power cord. 'I'm all juiced up.'\n"
                 else:
@@ -407,6 +411,30 @@ class Player:
                 return "Turn on who?"
         else:
             return "Turn on who?"
+    
+    def plug_in(self, string = ""):
+        current_room = self.location
+        here = current_room[0]
+        occupant = here.occupants
+        new_string = string.split(" ", 1)
+        if occupant != {"": ""}:
+            if len(new_string) > 1:
+                new_string2 = new_string[0]
+                if new_string2.capitalize() == "Robbie":
+                    key = new_string2.capitalize()
+                    occupant_new = occupant[new_string2.capitalize()]
+                    if key.capitalize() in occupant and occupant_new.unconscious == True:
+                         return occupant_new.plug_in()
+                    elif key.capitalize() in occupant and occupant_new.unconscious == False:
+                        return "Robbie says: 'I don't require any more power, thank you.'\n"
+                    else:
+                        return "That person isn't here."
+                else:
+                    return "Plug <who> in?"
+            else:
+                return "Plug <who> in?"
+        else:
+            return "That person isn't here."
 
     def quit(self): # need a save function so that progress on game can be made, perhaps with a yes/no prompt?
         global thread_running
@@ -555,10 +583,9 @@ class Droid:
         print("\nblink")
         time.sleep(0.1)
         print("\n\nThe green light glows brightly on Robbie's chest.")
-        time.sleep(9)
-        print("\nRobbie says: 'Thank you for powering me up.'")
-        time.sleep(5)
-        return "\nRobbie says: 'It has been two-hundred days since I last was activated. Oh my.'\n"
+        time.sleep(2)
+        return "\nYou can <turn on Robbie> now."
+
 
 # Item class here
 class Item:
@@ -592,6 +619,7 @@ player_functions["look"] = Player.look
 player_functions["quit"] = Player.quit
 player_functions["give"] = Player.give
 player_functions["turn"] = Player.turn_on
+player_functions["plug"] = Player.plug_in
 
 # print(player_functions)
 
@@ -629,7 +657,7 @@ hallway = Room("This is a long hallway that runs the length of the ship. There a
 player = Player("Tim", 100, 100)
 player.location = [engine_room]
 droid = Droid("Robbie", {}, engine_room)
-droid.plugged_in = True
+# droid.plugged_in = True
 engine_room.occupants = {droid.name: droid}
 print(engine_room.describe_self())
 prompt = "hp: " + str(player.healthpoints) + "/" + str(player.maxhealthpoints) + ": "
