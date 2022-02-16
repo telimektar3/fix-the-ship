@@ -442,7 +442,41 @@ class Player:
         if string == "":
             return "You mumble to yourself."
         else:
-            return "You say: {string}".format(string = string)
+            player_speech = "You say: {string}".format(string = string)
+            droid_output = droid.listen(string)
+            if droid_output == None:
+                return player_speech
+            else:
+                print(player_speech)
+                time.sleep(0.5)
+                return droid_output
+
+    def ask(self, string = ""):
+        current_room = self.location
+        here = current_room[0]
+        occupant = here.occupants
+        if string == "":
+            return "Ask <who> about <what>?"
+        else:
+            lower_string = string.lower()
+            robot = "Robbie"
+            if "robbie" in lower_string:
+                occupant_new = occupant[robot]
+            if "robbie about" not in lower_string:
+                return "Ask <who> about <what>?"
+            elif occupant != {"": ""}:
+                if robot in occupant and occupant_new.unconscious == True:
+                    return "Robbie can't answer questions. You should try turning Robbie on."
+                elif robot in occupant and occupant_new.unconscious == False:
+                    parsed_string = lower_string.split("robbie about ", 1)
+                    if parsed_string[1] in occupant_new.dialogue: # See if the asked about item is a key of the Droid.dialoge dict
+                        pass
+                    else:
+                        pass
+                else:
+                    return "What?"
+            else:
+                return "There isn't anyone here to ask."
 
     def quit(self): # need a save function so that progress on game can be made, perhaps with a yes/no prompt?
         global thread_running
@@ -559,18 +593,19 @@ class Droid:
         # Skill system attributes
         # self.repair_skill = 100
         # self.medical_skill = 100
+        self.dialogue = {}
 
     def listen(self, input = ""):    
         current_room = player.location[0]
-        listening_for = "say"
         if input != None:
                 hi = input.lower()
         if current_room != self.location:
             return
         elif droid.unconscious == False:
-            if listening_for in input:
-                if "hi" in hi:
-                    return "\nRobbie says: 'Hello, {player_name}'".format(player_name = player.name)
+            if "hi" in hi:
+                return "\nRobbie says: 'Hello, {player_name}. Please <ask> me about anything you want to know.'".format(player_name = player.name)
+            else:
+                pass
         else:
             return
             
@@ -644,6 +679,7 @@ player_functions["give"] = Player.give
 player_functions["turn"] = Player.turn_on
 player_functions["plug"] = Player.plug_in
 player_functions["say"] = Player.say
+player_functions["ask"] = Player.ask
 
 # print(player_functions)
 
@@ -666,13 +702,7 @@ def parse(input):
             elif len(input_list) == 1:
                 print(input_long)
                 function_output = function(player)
-            droid_output = droid.listen(function_output)
-            if droid_output == None:
-                return function_output
-            else:
-                print(function_output)
-                time.sleep(0.5)
-                return droid_output
+            return function_output
     else:
         print(input_long)
         return Player.check_move(player, input_long)
@@ -686,7 +716,7 @@ engine_room = Room("This is the engine room. There are all sorts of blinking lig
 hallway = Room("This is a long hallway that runs the length of the ship. There are several doors on either side of the hallway. At the ends of the hallway are heavy doors. ", "Hallway", "bridge, medical room, dormitory, workshop, utility closet, engine room, hangar bay", {}, "", "")
 medical_room = Room("This is a small medical room. There is a bed for the patient to lay on. There are various kinds of medical equipment on the walls.", "Medical Room", "hallway",{}, "", "")
 player = Player("blanker", 100, 100)
-player.location = [engine_room]
+player.location = [medical_room]
 droid = Droid("Robbie", {}, engine_room)
 # droid.plugged_in = True
 engine_room.occupants = {droid.name: droid}
@@ -738,7 +768,7 @@ print("You open your eyes. There is a bright light that makes it hard to see.\n\
 time.sleep(4)
 print("You rub your eyes. After a little bit you can see that you are in the medical room of a spaceship.")
 input(str("\n\n\nPress ENTER to continue "))
-print("\n\n\n\n\n\nYou can hear an alarm sounding, and the lights are flickering. You remember flying your ship through space when you suddenly flew into an asteroid belt. The last thing you remember is a big asteroid slamming into the side of your ship.\n\n")
+print("\n\n\n\n\n\nYou can hear an alarm sounding, and the lights are flickering. You remember flying your ship through space\n when you suddenly flew into an asteroid belt. The last thing you remember is a big asteroid slamming into the side of your ship.\n\n")
 input(str("Press ENTER to continue "))
 print("\n\n\n\n\n\nYou wonder who brought you the medical room. Maybe it was Robbie?\n\n")
 input(str("Press ENTER to continue"))
