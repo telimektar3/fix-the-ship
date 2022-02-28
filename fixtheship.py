@@ -1,6 +1,5 @@
 # Fix the Ship v0.5.0
 # Timothy Goode (telimektar3)
-import random
 from threading import Thread
 import time
 
@@ -547,17 +546,36 @@ def parse(input):
 # Game Code
 
 # Game Thread Setup
-viking_armor_1 = Item("a set of viking armor", "chest", "")
-engine_room = Room("This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "Engine Room", "galley, hallway", {viking_armor_1.name: viking_armor_1}, "", "")
+
+# Create initial items
+space_suit_1 = Item("a spacesuit", "chest", "")
+space_helmet_1 = Item("a helmet", "head", "")
+# need to add hidden repair items
+# need to add spacesuit items: helmet
+
+# Create initial rooms
+engine_room = Room("This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "Engine Room", "galley, hallway", {space_suit_1.name: space_suit_1}, "", "")
 hallway = Room("This is a long hallway that runs the length of the ship. There are several doors on either side of the hallway. At the ends of the hallway are heavy doors. ", "Hallway", "bridge, medical room, dormitory, workshop, utility closet, engine room, hangar bay", {}, "", "")
-medical_room = Room("This is a small medical room. There is a bed for the patient to lay on. There are various kinds of medical equipment on the walls.", "Medical Room", "hallway",{}, "", "")
-player = Player("blanker", 100, 100)
+medical_room = Room("This is a small medical room. There is a bed for the patient to lay on. There are various kinds of medical equipment on the walls.", "Medical Room", "hallway",{space_helmet_1.name: space_helmet_1}, "", "")
+bridge = Room("", "Bridge", "hallway", {}, "", "") # need to add description and hidden repair item
+dormitory = Room("", "Dormitory", "hallway", {}, "", "") # need to add description and hidden repair item
+workshop = Room("", "Workshop", "hallway", {}, "", "") # need to add description and hidden repair item
+utility_closet = Room("", "Utility Closet", "hallway", {}, "", "") # need to add description and hidden repair item
+hangar_bay = Room("", "Hangar Bay", "hallway", {}, "", "") # need to add description and hidden repair item
+galley = Room("", "Galley", "engine room", {}, "", "") # need to add description and hidden repair item
+
+# Create Player instance
+player = Player("blank", 100, 100)
 player.location = [medical_room]
+
+# Create initial Droids
 droid = Droid("Robbie", {}, engine_room)
-# droid.plugged_in = True
 engine_room.occupants = {droid.name: droid}
+
+# Create prompt
 prompt = "hp: " + str(player.healthpoints) + "/" + str(player.maxhealthpoints) + ": "
 
+# Intro Script
 print("\n\n\n\n\n\n\n    _______  __  ___   ___    .___________. __    __   _______         _______. __    __   __  .______")   
 print("   |   ____||  | \  \ /  /    |           ||  |  |  | |   ____|       /       ||  |  |  | |  | |   _  \\")
 print("   |  |__   |  |  \  V  /     `---|  |----`|  |__|  | |  |__         |   (----`|  |__|  | |  | |  |_)  |") 
@@ -573,9 +591,12 @@ time.sleep(1)
 print("\n\nHello, {player}".format(player = player.name))
 time.sleep(1)
 print("\n\nWelcome to your very own adventure. You will use your reading, typing and puzzle skills to fix a spaceship. You will find a robot on the ship that you can interact with. There will be items to pick up and use.\n\n\n")
-input(str("Continue"))
+
+input(str("Press ENTER to continue "))
 print("\nIf you ever need help you can type the word 'help'\n")
-begin_now = "Push ENTER to begin your adventure.\n\n"
+
+begin_now = "Press ENTER to begin your adventure.\n\n"
+
 input(str(begin_now))
 print("\n\n\n\n\n\n\n\n")
 time.sleep(1)
@@ -603,15 +624,18 @@ print("\n\n\n\n\n\n\n\n\n\n\n\n")
 print("You open your eyes. There is a bright light that makes it hard to see.\n\n")
 time.sleep(4)
 print("You rub your eyes. After a little bit you can see that you are in the medical room of a spaceship.")
+
 input(str("\n\n\nPress ENTER to continue "))
 print("\n\n\n\n\n\nYou can hear an alarm sounding, and the lights are flickering. You remember flying your ship through space\n when you suddenly flew into an asteroid belt. The last thing you remember is a big asteroid slamming into the side of your ship.\n\n")
+
 input(str("Press ENTER to continue "))
 print("\n\n\n\n\n\nYou wonder who brought you the medical room. Maybe it was Robbie?\n\n")
+
 input(str("Press ENTER to continue"))
 print("\n\n\n\n\n\n")
 print(medical_room.describe_self())
 
-
+# Game Threads
 
 def my_forever_while():
     global thread_running
@@ -651,8 +675,7 @@ if __name__ == '__main__':
     # thread_running = False
     print('Good-bye.') # maybe change this
 
-# Actual Game
-# Intro Screen
+# Outro Text
 print("\n\n\n    _______  __  ___   ___    .___________. __    __   _______         _______. __    __   __  .______")   
 print("   |   ____||  | \  \ /  /    |           ||  |  |  | |   ____|       /       ||  |  |  | |  | |   _  \\")
 print("   |  |__   |  |  \  V  /     `---|  |----`|  |__|  | |  |__         |   (----`|  |__|  | |  | |  |_)  |") 
