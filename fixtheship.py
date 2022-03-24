@@ -547,22 +547,29 @@ def parse(input):
 
 # Game Thread Setup
 
-# Create initial items
+# Create initial items & Hide hidden items
 space_suit_1 = Item("a spacesuit", "chest", "")
 space_helmet_1 = Item("a helmet", "head", "")
-# need to add hidden repair items
-# need to add spacesuit items: helmet
+battery_1 = Item("a battery", "", "")
+circuit_board_1 = Item("a circuit board", "", "")
+wiring_harness_1 = Item("a wiring harness", "", "")
+processor_1 = Item("a processor", "", "")
+
+battery_1.is_hidden = True
+circuit_board_1.is_hidden = True
+wiring_harness_1.is_hidden = True
+processor_1.is_hidden = True
 
 # Create initial rooms
 engine_room = Room("This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "Engine Room", "galley, hallway", {space_suit_1.name: space_suit_1}, "", "")
 hallway = Room("This is a long hallway that runs the length of the ship. There are several doors on either side of the hallway. At the ends of the hallway are heavy doors. ", "Hallway", "bridge, medical room, dormitory, workshop, utility closet, engine room, hangar bay", {}, "", "")
 medical_room = Room("This is a small medical room. There is a bed for the patient to lay on. There are various kinds of medical equipment on the walls.", "Medical Room", "hallway",{space_helmet_1.name: space_helmet_1}, "", "")
-bridge = Room("", "Bridge", "hallway", {}, "", "") # need to add description and hidden repair item
-dormitory = Room("", "Dormitory", "hallway", {}, "", "") # need to add description and hidden repair item
-workshop = Room("", "Workshop", "hallway", {}, "", "") # need to add description and hidden repair item
-utility_closet = Room("", "Utility Closet", "hallway", {}, "", "") # need to add description and hidden repair item
-hangar_bay = Room("", "Hangar Bay", "hallway", {}, "", "") # need to add description and hidden repair item
-galley = Room("", "Galley", "engine room", {}, "", "") # need to add description and hidden repair item
+bridge = Room("", "Bridge", "hallway", {circuit_board_1.name: circuit_board_1}, "", "") # need to add description
+dormitory = Room("", "Dormitory", "hallway", {processor_1.name: processor_1}, "", "") # need to add description
+workshop = Room("", "Workshop", "hallway", {wiring_harness_1.name: wiring_harness_1}, "", "") # need to add description
+utility_closet = Room("", "Utility Closet", "hallway", {battery_1.name: battery_1}, "", "") # need to add description
+hangar_bay = Room("", "Hangar Bay", "hallway", {}, "", "") # need to add description
+galley = Room("", "Galley", "engine room", {}, "", "") # need to add description
 
 # Create Player instance
 player = Player("blank", 100, 100)
