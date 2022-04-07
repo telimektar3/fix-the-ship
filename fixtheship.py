@@ -142,7 +142,7 @@ class Player:
 
  
     # Run this with "search" input
-    def search(self, item = ""):
+    def search(self):
         pass
     # "Search" should have a case that looks for parts where it finds parts necessary to repair the ship
     # in the current room. Need to create an attribute that includes a list of the necessary repair items.
@@ -501,8 +501,9 @@ class Item:
         # Health system attributes
         # self.condition = condition_item
 
-# Function Dictionary for Parser
+# Function List for Parser
 # player_functions["repair"] = Player.repair
+# player_functions["search"] = Player.search
 player_functions["remove"] = Player.remove     
 player_functions["eq"] = Player.equip
 player_functions["equip"] = Player.equip 
@@ -564,12 +565,12 @@ processor_1.is_hidden = True
 engine_room = Room("This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "Engine Room", "galley, hallway", {space_suit_1.name: space_suit_1}, "", "")
 hallway = Room("This is a long hallway that runs the length of the ship. There are several doors on either side of the hallway. At the ends of the hallway are heavy doors. ", "Hallway", "bridge, medical room, dormitory, workshop, utility closet, engine room, hangar bay", {}, "", "")
 medical_room = Room("This is a small medical room. There is a bed for the patient to lay on. There are various kinds of medical equipment on the walls.", "Medical Room", "hallway",{space_helmet_1.name: space_helmet_1}, "", "")
-bridge = Room("", "Bridge", "hallway", {circuit_board_1.name: circuit_board_1}, "", "") # need to add description
-dormitory = Room("", "Dormitory", "hallway", {processor_1.name: processor_1}, "", "") # need to add description
-workshop = Room("", "Workshop", "hallway", {wiring_harness_1.name: wiring_harness_1}, "", "") # need to add description
-utility_closet = Room("", "Utility Closet", "hallway", {battery_1.name: battery_1}, "", "") # need to add description
-hangar_bay = Room("", "Hangar Bay", "hallway", {}, "", "") # need to add description
-galley = Room("", "Galley", "engine room", {}, "", "") # need to add description
+bridge = Room("This is the bridge of your ship. It is small, with just one chair surrounded by various control panels.\nYou take a deep breath and can smell the faint scent of the leather of your command chair.\nThe viewport looks out on the vast blackness of space, punctuated with the bright pinpricks of\ndistant stars.", "Bridge", "hallway", {circuit_board_1.name: circuit_board_1}, "", "") # need to add description
+dormitory = Room("Calling this room a 'dormitory' is almost an exageration. There are two sets of bunkbeds set into\n either wall", "Dormitory", "hallway", {processor_1.name: processor_1}, "", "")
+workshop = Room("The workshop is small and packed full of electronic odds and ends. Wires are strewn about \non surfaces throughout the space.", "Workshop", "hallway", {wiring_harness_1.name: wiring_harness_1}, "", "")
+utility_closet = Room("You can barely fit inside this closet. There are cleaning supplies and power packs stacked in \nsmall see-through containers inside of the walls.", "Utility Closet", "hallway", {battery_1.name: battery_1}, "", "")
+hangar_bay = Room("This hangar bay is just big enough to fit a small personal shuttle into it. You know that there\n used to be one here. Where in the worlds did it go?", "Hangar Bay", "hallway", {}, "", "")
+galley = Room("A small room full of meal prep tools. The fridge is stocked full of protein pastes. It's been a while\n since you've been able to restock with fruits or vegetables.", "Galley", "engine room", {}, "", "")
 
 # Create Player instance
 player = Player("blank", 100, 100)
