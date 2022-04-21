@@ -6,6 +6,7 @@ import time
 # Global variables
 player_functions = {}
 locations = {}
+unfound_items = []
 prompt = ""
 thread_running = True
 # Player Class here
@@ -305,7 +306,7 @@ class Player:
                         occupant_new.unconscious = False
                         print("\nThe green light on Robbie's chest glows a bit brighter, and you hear a soft 'click'.")
                         time.sleep(5)
-                        print("\nRobbie's eyes brigthen and there is a whirring noise.")
+                        print("\nRobbie's eyes brighten and there is a whirring noise.")
                         time.sleep(5)
                         return "\nRobbie says: 'It has been two-hundred days since I last was activated. Oh my.'\n"
                     else:
@@ -373,9 +374,10 @@ class Player:
                 elif robot in occupant and occupant_new.unconscious == False:
                     parsed_string = lower_string.split("robbie about ", 1)
                     if parsed_string[1] in occupant_new.dialogue: # See if the asked about item is a key of the Droid.dialoge dict
-                        pass
+                        new_response = occupant_new.dialogue[parsed_string[1]]
+                        return new_response # need to parse out the items rather than returning a list
                     else:
-                        pass
+                        return "My memory circuits don't seem to be working right. I only know about 'items', 'repair', and 'ship'."
                 else:
                     return "What?"
             else:
@@ -442,7 +444,7 @@ class Droid:
         # Inventory system attributes
         self.inventory = inventory
         # Relationship system attributes
-        self.dialogue = {} # need to add topics of conversation here; may benefit from creating a method in Droid that will be called to process
+        self.dialogue = {"items": "You'll need to find the following items: " + str(unfound_items), "ship": "We have to find a way to repair the ship so we can get home.", "repair": "Once you find the parts give them to me. I'll repair the ship."} # need to add topics of conversation here; may benefit from creating a method in Droid that will be called to process
 
     def listen(self, input = ""):    
         current_room = player.location[0]
@@ -555,7 +557,7 @@ def parse(input):
 
 # Game Thread Setup
 
-# Create initial items & Hide hidden items
+# Create initial items, Hide hidden items, & add Repair items names to unfound_items list
 space_suit_1 = Item("a spacesuit", "chest", "")
 space_helmet_1 = Item("a helmet", "head", "")
 battery_1 = Item("a battery", "", "")
@@ -567,6 +569,8 @@ battery_1.is_hidden = True
 circuit_board_1.is_hidden = True
 wiring_harness_1.is_hidden = True
 processor_1.is_hidden = True
+
+unfound_items = [battery_1.name, circuit_board_1.name, wiring_harness_1.name, processor_1.name]
 
 # Create initial rooms
 engine_room = Room("This is the engine room. There are all sorts of blinking lights and various other things here.\nOddly enough, there isn't any sound here.", "Engine Room", "galley, hallway", {space_suit_1.name: space_suit_1}, "", "")
