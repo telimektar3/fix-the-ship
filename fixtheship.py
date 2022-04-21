@@ -26,10 +26,13 @@ class Player:
         self.eq = [["head", ""], ["chest", ""], ["weapon", ""],["tool", ""]]
 
         # Skill system attributes
-        self.repair_skill = 0
+        self.repair_skill = 50
         self.repair_prac = 0
-        self.search_skill = 0
+        self.search_skill = 50
         self.search_prac = 0
+
+        # State Flags
+        self.talked_repair_items = False
 
     # Run this with "score" input   
     def __repr__(self):
@@ -142,8 +145,11 @@ class Player:
 
  
     # Run this with "search" input
-    def search(self):
-        pass
+    def search(self, item = ""):
+        if player.talked_repair_items == False: # Check to see if the player has talked to Robby about items needed to repair the ship
+            return "You don't know what items you're looking for. You should ask someone." # Return a message prompting 'ask' 
+        else: # If the player has asked Robby what items are needed proceed here
+            pass
     # "Search" should have a case that looks for parts where it finds parts necessary to repair the ship
     # in the current room. Need to create an attribute that includes a list of the necessary repair items.
     # this search function should only be usable if the player has talked to the droid about what parts are
@@ -519,6 +525,7 @@ player_functions["turn"] = Player.turn_on
 player_functions["plug"] = Player.plug_in
 player_functions["say"] = Player.say
 player_functions["ask"] = Player.ask
+player_functions["search"] = Player.search
 
 # Parser here
 def parse(input):
