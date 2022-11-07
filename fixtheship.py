@@ -150,7 +150,21 @@ class Player:
         if player.talked_repair_items == False: # Check to see if the player has talked to Robby about items needed to repair the ship
             return "You don't know what items you're looking for. You should ask someone." # Return a message prompting 'ask' 
         else: # If the player has asked Robby what items are needed proceed here
-            pass
+            current_room = self.location
+            here = current_room[0]
+            here_objects = getattr(here, 'items')
+            if item in here_objects.keys():
+                new_item = here_objects[item]
+                if new_item.is_hidden == True:
+                    new_item.is_hidden == False
+                    print("You found " + new_item.name)
+                else:
+                    print("There isn't anything hidden here")
+                    return
+            else:
+                print("There isn't anything hidden here")
+                return
+    
     # "Search" should have a case that looks for parts where it finds parts necessary to repair the ship
     # in the current room. Need to create an attribute that includes a list of the necessary repair items.
     # this search function should only be usable if the player has talked to the droid about what parts are
@@ -375,7 +389,11 @@ class Player:
                     parsed_string = lower_string.split("robbie about ", 1)
                     if parsed_string[1] in occupant_new.dialogue: # See if the asked about item is a key of the Droid.dialoge dict
                         new_response = occupant_new.dialogue[parsed_string[1]]
-                        return new_response # need to parse out the items rather than returning a list
+                        if parsed_string[1] == "items":
+                            player.talked_repair_items = True
+                            return new_response # need to parse out the items rather than returning a list
+                        else:
+                            return new_response
                     else:
                         return "My memory circuits don't seem to be working right. I only know about 'items', 'repair', and 'ship'."
                 else:
@@ -506,12 +524,8 @@ class Item:
         self.is_equipped = False
         self.is_hidden = False
         self.location = location
-        # Health system attributes
-        # self.condition = condition_item
 
 # Function List for Parser
-# player_functions["repair"] = Player.repair
-# player_functions["search"] = Player.search
 player_functions["remove"] = Player.remove     
 player_functions["eq"] = Player.equip
 player_functions["equip"] = Player.equip 
